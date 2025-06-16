@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MERIDA - Investment App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        [cite_start]body { font-family: 'Inter', sans-serif; [cite: 1, 107]
+ -webkit-tap-highlight-color: transparent; [cite_start]} [cite: 2, 108]
+        [cite_start].merida-logo-text { font-weight: 900; letter-spacing: -0.05em; [cite: 2, 108]
+ text-shadow: 2px 2px 4px rgba(0,0,0,0.1); [cite_start]} [cite: 3, 109]
+        [cite_start].nav-item.active { color: #3b82f6; [cite: 3, 109]
+ } /* blue-500 */
+        [cite_start].btn-disabled { background-color: #d1d5db; cursor: not-allowed; [cite: 4, 110]
+ [cite_start]} [cite: 5, 111]
+    </style>
+</head>
+<body class="bg-slate-100">
+
+    [cite_start]<div id="auth-container" style="display: none;" class="min-h-screen bg-gradient-to-br from-blue-500 to-blue-700 flex flex-col items-center justify-center p-4"> [cite: 6, 112]
+        [cite_start]<h1 class="text-7xl font-black text-white merida-logo-text mb-6">MERIDA</h1> [cite: 6, 112]
+        <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-6">
+            <div class="flex border-b border-gray-200">
+                [cite_start]<button id="login-tab-btn" class="flex-1 py-3 font-semibold text-lg border-b-4 border-blue-500 text-blue-500">Login</button> [cite: 6, 112]
+                [cite_start]<button id="signup-tab-btn" class="flex-1 py-3 font-semibold text-lg text-gray-500">Sign Up</button> [cite: 6, 112]
+             [cite_start]</div> [cite: 7, 113]
+            [cite_start]<div id="error-message" class="mt-4 text-center text-red-500 font-medium h-5"></div> [cite: 7, 113]
+            <div class="mt-6">
+                <form id="login-form">
+                    [cite_start]<div class="mb-4"><label for="login-email" class="block text-sm font-medium text-gray-700">Email</label><input type="email" id="login-email" required class="mt-1 block w-full px-3 py-2 bg-slate-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></div> [cite: 7, 113]
+                     [cite_start]<div class="mb-6"><label for="login-password" class="block text-sm font-medium text-gray-700">Password</label><input type="password" id="login-password" required class="mt-1 block w-full px-3 py-2 bg-slate-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></div> [cite: 8, 114]
+                    [cite_start]<button type="submit" class="w-full bg-blue-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-600 transition duration-300 shadow-lg">Login</button> [cite: 8, 114]
+                </form>
+                 [cite_start]<form id="signup-form" class="hidden"> [cite: 9, 115]
+                    [cite_start]<div class="mb-4"><label for="signup-username" class="block text-sm font-medium text-gray-700">Username</label><input type="text" id="signup-username" required class="mt-1 block w-full px-3 py-2 bg-slate-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></div> [cite: 9, 115]
+                    [cite_start]<div class="mb-4"><label for="signup-email" class="block text-sm font-medium text-gray-700">Email</label><input type="email" id="signup-email" required class="mt-1 block w-full px-3 py-2 bg-slate-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></div> [cite: 9, 115]
+                     [cite_start]<div class="mb-4"><label for="signup-password" class="block text-sm font-medium text-gray-700">Password</label><input type="password" id="signup-password" required class="mt-1 block w-full px-3 py-2 bg-slate-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></div> [cite: 10, 116]
+                    [cite_start]<div class="mb-6"><label for="signup-confirm-password" class="block text-sm font-medium text-gray-700">Confirm Password</label><input type="password" id="signup-confirm-password" required class="mt-1 block w-full px-3 py-2 bg-slate-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></div> [cite: 10, 116]
+                    [cite_start]<button type="submit" class="w-full bg-blue-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-600 transition duration-300 shadow-lg">Create Account</button> [cite: 10, 117]
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-container" class="hidden w-full max-w-lg mx-auto bg-slate-200 flex-col h-screen">
+        <header class="bg-blue-600 text-white p-4 shadow-lg flex justify-between items-center z-10 sticky top-0">
+             [cite_start]<div><p class="text-sm opacity-80">Welcome back,</p><h2 id="user-name-display" class="font-bold text-xl">User</h2></div> [cite: 11, 117]
+              [cite_start]<div class="text-right"><p class="text-sm opacity-80">Available Profit</p><h2 id="total-assets-display" class="font-bold text-xl">Ksh 0.00</h2></div> [cite: 12, 118]
+        </header>
+
+        <main class="flex-grow p-4 overflow-y-auto pb-24">
+            <div id="page-home">
+                <h3 class="font-bold text-2xl text-slate-800 mb-4">Dashboard</h3>
+                <div class="grid grid-cols-2 gap-4 text-center mb-6">
+                     [cite_start]<div id="deposit-btn" class="bg-white p-4 rounded-xl shadow-md cursor-pointer hover:bg-slate-50 transition"><i class="fa-solid fa-wallet text-blue-500 text-2xl"></i><p class="font-semibold text-sm mt-1 text-slate-700">Deposit</p></div> [cite: 13, 119]
+                    [cite_start]<div id="withdraw-btn" class="bg-white p-4 rounded-xl shadow-md cursor-pointer hover:bg-slate-50 transition"><i class="fa-solid fa-money-bill-transfer text-blue-500 text-2xl"></i><p class="font-semibold text-sm mt-1 text-slate-700">Withdraw</p></div> [cite: 13, 119]
+                </div>
+                <div class="space-y-6">
+                     [cite_start]<div> [cite: 14, 120]
+                        [cite_start]<h4 class="font-bold text-xl text-slate-700 mb-3">Investment Levels</h4> [cite: 14, 120]
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                             [cite_start]<table class="min-w-full text-sm"> [cite: 15, 121]
+                                <thead class="bg-slate-100">
+                                    <tr>
+                                         [cite_start]<th class="py-2 px-3 text-left font-semibold text-slate-600">Stake (Ksh)</th> [cite: 16, 122]
+                                        [cite_start]<th class="py-2 px-3 text-center font-semibold text-slate-600">Daily Income (Ksh)</th> [cite: 16, 122]
+                                         [cite_start]<th class="py-2 px-3 text-right font-semibold text-slate-600">Min. [cite: 17, 123]
+ [cite_start]Withdraw (Ksh)</th> [cite: 18, 124]
+                                    </tr>
+                                </thead>
+                                 [cite_start]<tbody class="divide-y divide-slate-200 text-slate-800"> [cite: 19, 125]
+                                    [cite_start]<tr><td class="py-3 px-3 font-medium">500</td><td class="py-3 px-3 text-center font-bold text-green-600">16</td><td class="py-3 px-3 text-right">200</td></tr> [cite: 19, 125]
+                                    [cite_start]<tr><td class="py-3 px-3 font-medium">1,000</td><td class="py-3 px-3 text-center font-bold text-green-600">33</td><td class="py-3 px-3 text-right">500</td></tr> [cite: 19, 125]
+                                     [cite_start]<tr><td class="py-3 px-3 font-medium">2,000</td><td class="py-3 px-3 text-center font-bold text-green-600">66</td><td class="py-3 px-3 text-right">500</td></tr> [cite: 20, 126]
+                                    [cite_start]<tr><td class="py-3 px-3 font-medium">3,000</td><td class="py-3 px-3 text-center font-bold text-green-600">100</td><td class="py-3 px-3 text-right">700</td></tr> [cite: 20, 126]
+                                     [cite_start]<tr><td class="py-3 px-3 font-medium">5,000</td><td class="py-3 px-3 text-center font-bold text-green-600">166</td><td class="py-3 px-3 text-right">1,000</td></tr> [cite: 21, 127]
+                                    [cite_start]<tr><td class="py-3 px-3 font-medium">10,000</td><td class="py-3 px-3 text-center font-bold text-green-600">330</td><td class="py-3 px-3 text-right">1,500</td></tr> [cite: 21, 127]
+                                   [cite_start]</tbody> [cite: 22, 128]
+                            </table>
+                        </div>
+                    </div>
+                 [cite_start]</div> [cite: 23, 129]
+            </div>
+            <div id="page-work" class="hidden text-center">
+                 [cite_start]<h3 class="font-bold text-2xl text-slate-800 mb-6">Today's Task</h3> [cite: 23, 129]
+                 [cite_start]<div id="work-content" class="bg-white rounded-lg p-6 shadow-md min-h-[150px] flex items-center justify-center"></div> [cite: 23, 129]
+                 [cite_start]<div id="task-feedback" class="mt-4 text-green-600 font-semibold h-5"></div> [cite: 23, 130]
+            </div>
+            <div id="page-profit" class="hidden">
+                 <h3 class="font-bold text-2xl text-slate-800 mb-6">Profit Overview</h3>
+                <div id="transaction-log" class="space-y-3"></div>
+            </div>
+            <div id="page-my" class="hidden">
+                 [cite_start]<h3 class="font-bold text-2xl text-slate-800 mb-6">My Profile</h3> [cite: 25, 131]
+                [cite_start]<div class="bg-white p-4 rounded-lg shadow-md mb-6"><h4 class="font-bold text-lg text-slate-700 mb-3">Personal Details</h4><div class="space-y-2 text-sm"><p><span class="font-semibold">Username:</span> <span id="my-username"></span></p><p><span class="font-semibold">Email:</span> <span id="my-email"></span></p><p><span class="font-semibold">User ID:</span> <span id="my-userid" class="text-xs text-slate-500"></span></p></div></div> [cite: 25, 131]
+                [cite_start]<div class="bg-white p-4 rounded-lg shadow-md mb-6"><h4 class="font-bold text-lg text-slate-700 mb-3">My Referral Link</h4><div class="bg-slate-100 p-2 rounded-md flex items-center justify-between"><input id="referral-link-input" type="text" readonly value="Loading..." class="bg-transparent text-slate-600 text-xs w-full focus:outline-none"><button id="copy-referral-btn" class="bg-blue-500 text-white px-3 py-1 rounded text-sm font-semibold">Copy</button></div></div> [cite: 25, 132]
+                [cite_start]<div class="bg-white p-4 rounded-lg shadow-md mb-6"><h4 class="font-bold text-lg text-slate-700 mb-3">My Team</h4><div id="my-team-list" class="space-y-2"></div></div> [cite: 26, 132]
+                [cite_start]<button id="logout-btn" class="w-full bg-red-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-600 transition duration-300 shadow-lg">Logout</button> [cite: 26, 132]
+            </div>
+        </main>
+
+        [cite_start]<footer class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex justify-around max-w-lg mx-auto"> [cite: 26, 133]
+             [cite_start]<button data-page="home" class="nav-item flex-1 py-3 text-center text-slate-600 hover:bg-slate-100 transition active"><i class="fas fa-home text-xl"></i><span class="block text-xs font-medium">Home</span></button> [cite: 27, 133]
+             [cite_start]<button data-page="work" class="nav-item flex-1 py-3 text-center text-slate-600 hover:bg-slate-100 transition"><i class="fas fa-briefcase text-xl"></i><span class="block text-xs font-medium">Work</span></button> [cite: 27, 133]
+             [cite_start]<button data-page="profit" class="nav-item flex-1 py-3 text-center text-slate-600 hover:bg-slate-100 transition"><i class="fas fa-chart-line text-xl"></i><span class="block text-xs font-medium">Profit</span></button> [cite: 27, 133]
+             [cite_start]<button data-page="my" class="nav-item flex-1 py-3 text-center text-slate-600 hover:bg-slate-100 transition"><i class="fas fa-user text-xl"></i><span class="block text-xs font-medium">My</span></button> [cite: 28, 134]
+        </footer>
+    </div>
+    
+    <div id="deposit-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-40 p-4"><div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm text-center"><h3 class="font-bold text-xl mb-3">Deposit Instructions</h3><p class="text-slate-600 mb-4">Please contact admin to make a deposit.</p><button id="close-modal-btn" class="mt-3 text-slate-500 font-semibold">Close</button></div></div>
+    [cite_start]<div id="withdraw-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-40 p-4"><div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm text-center"><h3 class="font-bold text-xl mb-3">Request Withdrawal</h3><p class="text-slate-600 mb-4">Enter amount to withdraw. [cite: 28, 134]
+[cite_start]Minimum depends on your level.</p><input type="number" id="withdraw-amount" placeholder="Ksh 0.00" class="w-full text-center px-3 py-2 text-lg font-bold bg-slate-50 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"><button id="submit-withdrawal-btn" class="mt-4 w-full bg-blue-500 text-white font-bold py-3 rounded-lg hover:bg-blue-600 shadow-lg transition">Submit Request</button><button id="cancel-withdraw-modal-btn" class="mt-3 text-slate-500 font-semibold">Cancel</button></div></div> [cite: 29, 135]
+    <div id="message-modal" class="hidden fixed top-5 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-xl z-50 animate-pulse"><p id="message-modal-text"></p></div>
+
+    <script type="module">
+        [cite_start]import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"; [cite: 29, 135]
+        [cite_start]import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"; [cite: 30, 136]
+        [cite_start]import { getFirestore, doc, setDoc, onSnapshot, updateDoc, increment, collection, addDoc, query, where, getDocs, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js"; [cite: 31, 137]
+        [cite_start]document.addEventListener("DOMContentLoaded", () => { [cite: 32, 138]
+            // --- UPDATED FIREBASE CONFIG ---
+            const firebaseConfig = {
+                apiKey: "AIzaSyB8Ni8HRr5lbtvD3WDcly9xTAdAl2OKNNQ",
+                authDomain: "merida-47818.firebaseapp.com",
+                projectId: "merida-47818",
+                storageBucket: "merida-47818.appspot.com",
+                messagingSenderId: "606896191722",
+                appId: "1:606896191722:web:bf309888bd1cfbb6123f93",
+                measurementId: "G-SPSG3DYMY7"
+            };
+
+            const INVESTMENT_LEVELS = {
+                [cite_start]'level-1': { name: 'Level 1 (Ksh 500)', dailyIncome: 16, minWithdraw: 200 }, [cite: 32, 138]
+                [cite_start]'level-2': { name: 'Level 2 (Ksh 1,000)', dailyIncome: 33, minWithdraw: 500  }, [cite: 32, 139]
+                [cite_start]'level-3': { name: 'Level 3 (Ksh 2,000)', dailyIncome: 66, minWithdraw: 500 }, [cite: 33, 139]
+                [cite_start]'level-4': { name: 'Level 4 (Ksh 3,000)', dailyIncome: 100, minWithdraw: 700 }, [cite: 33, 139]
+                [cite_start]'level-5': { name: 'Level 5 (Ksh 5,000)', dailyIncome: 166, minWithdraw: 1000 }, [cite: 33, 139]
+                [cite_start]'level-6': { name: 'Level 6 (Ksh 10,000)', dailyIncome: 330, minWithdraw: 1500 }, [cite: 33, 140]
+                [cite_start]'None': { name: 'No Level', dailyIncome: 0, minWithdraw: Infinity } [cite: 34, 140]
+            };
+            [cite_start]let app, auth, db, currentUserData = null, unsubscribeUser = null, taskTimerInterval = null, taskTimerEndTime = null; [cite: 35, 141]
+            try { app = initializeApp(firebaseConfig); auth = getAuth(app); db = getFirestore(app); [cite_start]} catch (e) { console.error("Firebase init failed:", e); [cite: 36, 142]
+            alert("Cannot connect to server."); return; [cite_start]} [cite: 37, 143]
+
+            const DOMElements = {
+                authContainer: document.getElementById('auth-container'), appContainer: document.getElementById('app-container'), errorMessage: document.getElementById('error-message'), loginTabBtn: document.getElementById('login-tab-btn'), signupTabBtn: document.getElementById('signup-tab-btn'), loginForm: document.getElementById('login-form'), signupForm: document.getElementById('signup-form'), logoutBtn: document.getElementById('logout-btn'), navItems: document.querySelectorAll('.nav-item'), pages: { home: document.getElementById('page-home'), work: document.getElementById('page-work'), profit: document.getElementById('page-profit'), my: document.getElementById('page-my') }, userNameDisplay: document.getElementById('user-name-display'), totalAssetsDisplay: document.getElementById('total-assets-display'), myUsername: document.getElementById('my-username'), myEmail: document.getElementById('my-email'), myUserid: document.getElementById('my-userid'), referralLinkInput: document.getElementById('referral-link-input'), copyReferralBtn: document.getElementById('copy-referral-btn'), workContent: document.getElementById('work-content'), taskFeedback: document.getElementById('task-feedback'), transactionLog: document.getElementById('transaction-log'), myTeamList: document.getElementById('my-team-list'), depositBtn: document.getElementById('deposit-btn'), depositModal: document.getElementById('deposit-modal'), closeModalBtn: document.getElementById('close-modal-btn'), withdrawBtn: document.getElementById('withdraw-btn'), withdrawModal: document.getElementById('withdraw-modal'), cancelWithdrawModalBtn: document.getElementById('cancel-withdraw-modal-btn'), submitWithdrawalBtn: 
+            [cite_start]document.getElementById('submit-withdrawal-btn'), withdrawAmountInput: document.getElementById('withdraw-amount'), messageModal: document.getElementById('message-modal'), messageModalText: document.getElementById('message-modal-text'), [cite: 38, 144]
+            };
+            const showMessage = (text, isError = false) => { DOMElements.messageModalText.textContent = text; DOMElements.messageModal.classList.toggle('bg-red-500', isError); DOMElements.messageModal.classList.toggle('bg-green-500', !isError); [cite_start]DOMElements.messageModal.classList.remove('hidden'); [cite: 39, 145]
+            setTimeout(() => DOMElements.messageModal.classList.add('hidden'), 3500); [cite_start]}; [cite: 40, 146]
+            [cite_start]const switchAuthTab = (tab) => { DOMElements.errorMessage.textContent = ''; const isLogin = tab === 'login'; [cite: 40, 146]
+            DOMElements.loginTabBtn.classList.toggle('border-blue-500', isLogin); DOMElements.loginTabBtn.classList.toggle('text-blue-500', isLogin); DOMElements.loginTabBtn.classList.toggle('text-gray-500', !isLogin); DOMElements.signupTabBtn.classList.toggle('border-blue-500', !isLogin); DOMElements.signupTabBtn.classList.toggle('text-blue-500', !isLogin); DOMElements.signupTabBtn.classList.toggle('text-gray-500', isLogin); DOMElements.loginForm.classList.toggle('hidden', !isLogin); DOMElements.signupForm.classList.toggle('hidden', isLogin); [cite_start]}; [cite: 41, 147]
+            const switchPage = (pageName) => { Object.values(DOMElements.pages).forEach(p => p.classList.add('hidden')); if(DOMElements.pages[pageName]) DOMElements.pages[pageName].classList.remove('hidden'); [cite_start]DOMElements.navItems.forEach(item => item.classList.toggle('active', item.dataset.page === pageName)); [cite: 42, 148]
+            if (pageName === 'profit') renderProfitPage(); if (pageName === 'my') renderMyTeam(); [cite_start]}; [cite: 43, 149]
+            [cite_start]const createUserProfile = async (user, username) => { const userRef = doc(db, "users", user.uid); const urlParams = new URLSearchParams(window.location.search); [cite: 44, 150]
+            [cite_start]await setDoc(userRef, { uid: user.uid, username, email: user.email, createdAt: serverTimestamp(), investmentLevel: 'None', totalAssets: 0, referrerId: urlParams.get('ref') || null, lastResetDate: new Date().toISOString().split('T')[0], tasksCompletedToday: 0 }); [cite: 45, 151]
+            };
+            [cite_start]const listenToUserData = (user) => { if (unsubscribeUser) unsubscribeUser(); const userRef = doc(db, "users", user.uid); [cite: 46, 152]
+            [cite_start]unsubscribeUser = onSnapshot(userRef, async (docSnap) => { if (docSnap.exists()) { currentUserData = { id: docSnap.id, ...docSnap.data() }; await checkAndResetTasks(user.uid, currentUserData); updateUI(currentUserData); } }, e => console.error("Listen Error:", e)); [cite: 47, 153]
+            };
+            [cite_start]const checkAndResetTasks = async (userId, userData) => { const today = new Date().toISOString().split('T')[0]; [cite: 48, 154]
+            if (today !== userData.lastResetDate) { await updateDoc(doc(db, "users", userId), { tasksCompletedToday: 0, lastResetDate: today }); [cite_start]} }; [cite: 49, 155]
+            const updateUI = (data) => { if (!data) return; DOMElements.userNameDisplay.textContent = data.username; DOMElements.totalAssetsDisplay.textContent = `Ksh ${data.totalAssets.toFixed(2)}`; [cite_start]DOMElements.myUsername.textContent = data.username; [cite: 50, 156]
+            DOMElements.myEmail.textContent = data.email; DOMElements.myUserid.textContent = data.uid; DOMElements.referralLinkInput.value = `${window.location.origin}${window.location.pathname}?ref=${data.uid}`; renderWorkPage(data); [cite_start]}; [cite: 51, 157]
+            const renderWorkPage = (data) => {
+                [cite_start]const levelKey = data.investmentLevel || [cite: 52, 158]
+ [cite_start]'None'; [cite: 53, 159]
+                const levelInfo = INVESTMENT_LEVELS[levelKey];
+                [cite_start]if (!levelInfo || levelKey === 'None') { DOMElements.workContent.innerHTML = `<p class="text-slate-600">Your account is not active. [cite: 53, 159]
+ [cite_start]Please make a deposit and contact admin to activate a level.</p>`; return; [cite: 54, 160]
+                }
+                [cite_start]if (data.tasksCompletedToday >= 1) { DOMElements.workContent.innerHTML = `<p class="font-bold text-2xl text-green-500 my-4">Daily task completed!</p><p class="text-slate-600">Come back tomorrow for your next task.</p>`; [cite: 55, 161]
+ return; [cite_start]} [cite: 56, 162]
+                [cite_start]const remainingTime = taskTimerEndTime ? [cite: 56, 162]
+ [cite_start]Math.round((taskTimerEndTime - Date.now()) / 1000) : 0; [cite: 57, 163]
+                let buttonHTML;
+                [cite_start]if (remainingTime > 0) buttonHTML = `<button id="work-button" class="w-full btn-disabled text-white font-bold py-4 px-4 rounded-lg text-xl" disabled>Working... (${remainingTime}s)</button>`; [cite: 57, 163]
+                [cite_start]else if (taskTimerEndTime) buttonHTML = `<button id="work-button" class="w-full bg-green-500 text-white font-bold py-4 px-4 rounded-lg hover:bg-green-600 shadow-lg text-xl">Complete Task</button>`; [cite: 58, 164]
+                [cite_start]else buttonHTML = `<button id="work-button" class="w-full bg-blue-500 text-white font-bold py-4 px-4 rounded-lg hover:bg-blue-600 shadow-lg text-xl">Start Task</button>`; [cite: 59, 165]
+                [cite_start]DOMElements.workContent.innerHTML = `<p class="text-slate-600">Current Level: <span class="font-bold">${levelInfo.name}</span></p><p class="font-bold text-4xl text-blue-500 my-4">Task 1 of 1</p>${buttonHTML}`; [cite: 60, 166]
+                document.getElementById('work-button')?.addEventListener('click', handleWorkButtonClick);
+            };
+            [cite_start]const handleWorkButtonClick = () => { if (taskTimerEndTime && Math.round((taskTimerEndTime - Date.now()) / 1000) > 0) return; if (taskTimerEndTime) completeTask(); [cite: 61, 167]
+            else startTaskTimer(); [cite_start]}; [cite: 62, 168]
+            [cite_start]const startTaskTimer = () => { taskTimerEndTime = Date.now() + 45 * 1000; renderWorkPage(currentUserData); [cite: 62, 168]
+            [cite_start]taskTimerInterval = setInterval(() => { const secondsLeft = Math.round((taskTimerEndTime - Date.now()) / 1000); if (secondsLeft <= 0) { clearInterval(taskTimerInterval); taskTimerInterval = null; renderWorkPage(currentUserData); } else { const workButton = document.getElementById('work-button'); if (workButton) workButton.textContent = `Working... (${secondsLeft}s)`; } }, 1000); [cite: 63, 169]
+            };
+            [cite_start]const completeTask = async () => { taskTimerEndTime = null; const levelInfo = INVESTMENT_LEVELS[currentUserData.investmentLevel]; const earnings = levelInfo.dailyIncome; [cite: 64, 170]
+            [cite_start]const userRef = doc(db, "users", auth.currentUser.uid); try { await updateDoc(userRef, { totalAssets: increment(earnings), tasksCompletedToday: increment(1) }); [cite: 65, 171]
+            await addDoc(collection(db, "transactions"), { userId: auth.currentUser.uid, amount: earnings, type: 'task', timestamp: serverTimestamp() }); DOMElements.taskFeedback.textContent = `Task completed! [cite_start]+Ksh ${earnings.toFixed(2)} added.`; [cite: 66, 172]
+            setTimeout(() => DOMElements.taskFeedback.textContent = '', 3000); } catch (e) { showMessage("Error completing task.", true); [cite_start]} }; [cite: 67, 173]
+            [cite_start]const renderProfitPage = async () => { const q = query(collection(db, "transactions"), where("userId", "==", auth.currentUser.uid), orderBy("timestamp", "desc")); [cite: 68, 174]
+            const querySnapshot = await getDocs(q); [cite_start]DOMElements.transactionLog.innerHTML = ''; if (querySnapshot.empty) { DOMElements.transactionLog.innerHTML = '<p class="text-slate-500 text-center">No transactions yet.</p>'; return; [cite: 69, 175]
+            [cite_start]} querySnapshot.docs.forEach(docSnap => { const t = docSnap.data(); DOMElements.transactionLog.innerHTML += `<div class="bg-white p-3 rounded-lg shadow-sm flex justify-between items-center"><div><p class="font-semibold text-slate-800">Task Completion</p><p class="text-xs text-slate-500">${t.timestamp.toDate().toLocaleString()}</p></div><p class="font-bold text-green-600">+ Ksh ${t.amount.toFixed(2)}</p></div>`; }); [cite: 70, 176]
+            };
+            [cite_start]const renderMyTeam = async () => { const q = query(collection(db, "users"), where("referrerId", "==", auth.currentUser.uid)); [cite: 71, 177]
+            const querySnapshot = await getDocs(q); [cite_start]DOMElements.myTeamList.innerHTML = ''; if (querySnapshot.empty) { DOMElements.myTeamList.innerHTML = '<p class="text-slate-500 text-center">No referrals yet.</p>'; return; [cite: 72, 178]
+            [cite_start]} querySnapshot.forEach(docSnap => { const member = docSnap.data(); const status = member.investmentLevel === 'None' ? 'Registered' : 'Active'; DOMElements.myTeamList.innerHTML += `<div class="bg-slate-100 p-2 rounded-md flex justify-between items-center text-sm"><p class="font-semibold">${member.username}</p><p class="font-bold ${status === 'Active' ? 'text-green-500' : 'text-yellow-500'}">${status}</p></div>`; }); [cite: 73, 179]
+            };
+
+            // --- EVENT LISTENERS ---
+            [cite_start]DOMElements.loginTabBtn.addEventListener('click', () => switchAuthTab('login')); [cite: 74, 180]
+            [cite_start]DOMElements.signupTabBtn.addEventListener('click', () => switchAuthTab('signup')); [cite: 75, 181]
+            [cite_start]DOMElements.loginForm.addEventListener('submit', async (e) => { e.preventDefault(); DOMElements.errorMessage.textContent = ''; try { await signInWithEmailAndPassword(auth, DOMElements.loginForm['login-email'].value, DOMElements.loginForm['login-password'].value); } catch (e) { DOMElements.errorMessage.textContent = e.message.replace('Firebase: ', ''); } }); [cite: 75, 181]
+            [cite_start]DOMElements.signupForm.addEventListener('submit', async (e) => { e.preventDefault(); DOMElements.errorMessage.textContent = ''; const pass = DOMElements.signupForm['signup-password'].value; if (pass !== DOMElements.signupForm['signup-confirm-password'].value) { DOMElements.errorMessage.textContent = "Passwords don't match."; return; } try { const cred = await createUserWithEmailAndPassword(auth, DOMElements.signupForm['signup-email'].value, pass); await createUserProfile(cred.user, DOMElements.signupForm['signup-username'].value); } catch (e) { DOMElements.errorMessage.textContent = e.message.replace('Firebase: ', ''); } }); [cite: 76, 182]
+            [cite_start]DOMElements.logoutBtn.addEventListener('click', () => { if (confirm("Are you sure?")) signOut(auth); }); [cite: 77, 183]
+            [cite_start]DOMElements.copyReferralBtn.addEventListener('click', () => { DOMElements.referralLinkInput.select(); document.execCommand('copy'); showMessage('Link copied!'); }); [cite: 77, 183]
+            [cite_start]DOMElements.depositBtn.addEventListener('click', () => DOMElements.depositModal.classList.remove('hidden')); [cite: 78, 184]
+            DOMElements.closeModalBtn.addEventListener('click', () => DOMElements.depositModal.classList.add('hidden'));
+            [cite_start]DOMElements.withdrawBtn.addEventListener('click', () => { if (!currentUserData) return; const levelInfo = INVESTMENT_LEVELS[currentUserData.investmentLevel || 'None']; if (currentUserData.totalAssets < levelInfo.minWithdraw) { showMessage(`You need at least Ksh ${levelInfo.minWithdraw} to make a withdrawal at your current level.`, true); return; } DOMElements.withdrawModal.classList.remove('hidden'); }); [cite: 78, 184]
+            [cite_start]DOMElements.cancelWithdrawModalBtn.addEventListener('click', () => DOMElements.withdrawModal.classList.add('hidden')); [cite: 79, 185]
+            [cite_start]DOMElements.submitWithdrawalBtn.addEventListener('click', async () => { const levelInfo = INVESTMENT_LEVELS[currentUserData.investmentLevel || 'None']; const amount = parseFloat(DOMElements.withdrawAmountInput.value); if (isNaN(amount) || amount <= 0) { showMessage('Invalid amount.', true); return; } if (amount > currentUserData.totalAssets) { showMessage('Insufficient funds.', true); return; } if (amount < levelInfo.minWithdraw) { showMessage(`Minimum withdrawal for your level is Ksh ${levelInfo.minWithdraw}.`, true); return; } try { await addDoc(collection(db, 'admin_notifications'), { userId: auth.currentUser.uid, username: currentUserData.username, type: 'withdrawal_request', amount: amount, timestamp: serverTimestamp() }); await updateDoc(doc(db, "users", auth.currentUser.uid), { totalAssets: increment(-amount) }); showMessage('Withdrawal request sent!'); DOMElements.withdrawModal.classList.add('hidden'); DOMElements.withdrawAmountInput.value = ''; } catch (e) { showMessage('Request failed.', true); [cite: 79, 185]
+            } });
+            [cite_start]DOMElements.navItems.forEach(item => item.addEventListener('click', () => switchPage(item.dataset.page))); [cite: 80, 186]
+
+            // --- INITIALIZATION ---
+            onAuthStateChanged(auth, user => { if (user) { DOMElements.authContainer.style.display = 'none'; DOMElements.appContainer.style.display = 'flex'; listenToUserData(user); switchPage('home'); } else { DOMElements.authContainer.style.display = 'flex'; DOMElements.appContainer.style.display = 'none'; if (unsubscribeUser) unsubscribeUser(); currentUserData = null; } });
+            [cite_start]switchAuthTab('login'); [cite: 81, 187]
+        });
+    </script>
+</body>
+</html>
