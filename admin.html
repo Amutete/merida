@@ -3,138 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MERIDA - Admin Panel</title>
+    <title>MERIDA - Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
-    <style> body { font-family: 'Inter', sans-serif; } </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/heroicons/2.1.3/24/outline/hero-icons.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .sidebar-link { display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.5rem; transition: background-color 0.2s; cursor: pointer; }
+        .sidebar-link:hover, .sidebar-link.active { background-color: #4a5568; }
+        .sidebar-link svg { width: 1.5rem; height: 1.5rem; margin-right: 0.75rem; }
+        .content-section { display: none; }
+        .content-section.active { display: block; }
+        .stat-card { background-color: white; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
+        .notification-badge { position: absolute; top: 0.5rem; right: 0.5rem; background-color: #3b82f6; color: white; border-radius: 9999px; font-size: 0.75rem; font-weight: bold; width: 1.5rem; height: 1.5rem; display: flex; align-items: center; justify-content: center; }
+    </style>
 </head>
-<body class="bg-slate-200">
+<body class="bg-slate-100">
 
-    <div id="admin-login-container" class="min-h-screen flex items-center justify-center">
+    <div id="admin-login-container" class="min-h-screen flex items-center justify-center bg-slate-200 p-4">
         <div class="w-full max-w-sm bg-white rounded-2xl shadow-xl p-8">
-            <h1 class="text-3xl font-bold text-center text-blue-600 mb-6">MERIDA Admin</h1>
+            <h1 class="text-3xl font-bold text-center text-blue-600 mb-6">MERIDA Admin Login</h1>
             <div id="admin-error-message" class="mb-4 text-center text-red-500 font-medium h-5"></div>
             <form id="admin-login-form">
-                <div class="mb-4"><label for="admin-email" class="block text-sm font-medium text-gray-700">Admin Email</label><input type="email" id="admin-email" required class="mt-1 block w-full px-3 py-2 bg-slate-50 border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></div>
-                <div class="mb-6"><label for="admin-password" class="block text-sm font-medium text-gray-700">Admin Password</label><input type="password" id="admin-password" required class="mt-1 block w-full px-3 py-2 bg-slate-50 border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></div>
+                <div class="mb-4"><label for="admin-email" class="block text-sm font-medium text-slate-700">Admin Email</label><input type="email" id="admin-email" required class="mt-1 block w-full px-3 py-2 bg-slate-50 border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></div>
+                <div class="mb-6"><label for="admin-password" class="block text-sm font-medium text-slate-700">Admin Password</label><input type="password" id="admin-password" required class="mt-1 block w-full px-3 py-2 bg-slate-50 border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></div>
                 <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition duration-300 shadow-lg">Login</button>
             </form>
         </div>
     </div>
-    
-    <div id="claim-container" class="hidden min-h-screen items-center justify-center bg-slate-200 p-4" style="display: none;">
-        <div class="w-full max-w-lg bg-white rounded-2xl shadow-xl p-8 text-center"><div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-4" role="alert"><p class="font-bold text-lg">Admin Account Setup</p><p class="mt-2">Click the button below to grant admin privileges to this account. This is a one-time step.</p><button id="grant-admin-btn" class="mt-4 bg-green-600 text-white font-bold py-2 px-6 rounded hover:bg-green-700 transition-colors">Grant Privileges</button></div><button id="claim-logout-btn" class="mt-6 text-sm text-slate-500 hover:underline">Logout</button></div>
-    </div>
 
-    <div id="admin-panel-container" class="hidden container mx-auto p-4 md:p-8">
-        <!-- Dashboard UI is unchanged -->
+    <div id="admin-panel-container" class="hidden">
+        <div class="flex h-screen bg-gray-800 text-white">
+            <nav class="w-64 flex-shrink-0 bg-slate-900 p-4 flex flex-col justify-between">
+                <div>
+                    <h2 class="text-2xl font-bold text-center text-blue-500 mb-8 border-b border-gray-700 pb-4">MERIDA ADMIN</h2>
+                    <ul class="space-y-3">
+                        <li><div class="sidebar-link active" data-target="overview"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h7.5" /></svg>Overview</div></li>
+                        <li class="relative"><div class="sidebar-link" data-target="withdrawals"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>Withdrawal Requests</div><div id="withdrawals-badge" class="notification-badge hidden">0</div></li>
+                        <li><div class="sidebar-link" data-target="users"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.003c0 1.113.285 2.16.786 3.07m-6.136-7.854a4.125 4.125 0 11-7.533-2.493 4.125 4.125 0 017.533 2.493zM3.513 12.343a4.125 4.125 0 117.533 2.493m-7.533-2.493c0 1.113.285 2.16.786 3.07" /></svg>Manage Users</div></li>
+                    </ul>
+                </div>
+                <button id="admin-logout-btn" class="sidebar-link w-full text-red-400 hover:bg-red-800/50"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" /></svg>Logout</button>
+            </nav>
+
+            <main class="flex-1 p-6 md:p-10 bg-slate-100 overflow-y-auto">
+                <header class="mb-8"><h1 id="page-title" class="text-4xl font-bold text-slate-800">Overview</h1></header>
+                <div id="overview-section" class="content-section active"><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"><div class="stat-card"><h3 class="text-slate-500 font-semibold">Total Users</h3><p id="total-users" class="text-3xl font-bold text-slate-800">0</p></div><div class="stat-card"><h3 class="text-slate-500 font-semibold">Total Platform Assets</h3><p id="total-assets" class="text-3xl font-bold text-slate-800">Ksh 0.00</p></div><div class="stat-card"><h3 class="text-slate-500 font-semibold">Pending Withdrawals</h3><p id="pending-withdrawals" class="text-3xl font-bold text-blue-500">0</p></div></div></div>
+                <div id="withdrawals-section" class="content-section"><div id="withdrawals-list" class="space-y-4 bg-white p-4 rounded-lg shadow"></div></div>
+                <div id="users-section" class="content-section"><div id="users-list" class="space-y-4 bg-white p-4 rounded-lg shadow max-h-[75vh] overflow-y-auto"></div></div>
+            </main>
+        </div>
     </div>
     
-    <div id="user-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-40 p-4">
-        <!-- User management modal is unchanged -->
-    </div>
+    <div id="user-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-40 p-4"><div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md text-slate-800"><h3 id="modal-username" class="font-bold text-xl mb-4">User Details</h3><div class="space-y-3"><div><label for="modal-level" class="block text-sm font-medium text-slate-700">Set Investment Level</label><select id="modal-level" class="mt-1 block w-full p-2 bg-slate-50 border border-slate-300 rounded-md"></select></div><p class="text-xs text-slate-500">Updating the level will activate the user's account.</p><button id="update-user-btn" class="w-full bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700">Update User</button></div><button id="close-user-modal-btn" class="mt-4 w-full text-center text-slate-600 font-semibold">Close</button></div></div>
+    <div id="message-modal" class="hidden fixed top-5 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-xl z-50 animate-pulse"><p id="message-modal-text"></p></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, updateDoc, onSnapshot, query, orderBy, deleteDoc, getDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        
+        import { getFirestore, collection, doc, updateDoc, onSnapshot, query, orderBy, deleteDoc, getDoc, addDoc, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         document.addEventListener("DOMContentLoaded", () => {
             const firebaseConfig = { apiKey: "AIzaSyB8Ni8HRr5lbtvD3WDcly9xTAdAl2OKNNQ", authDomain: "merida-47818.firebaseapp.com", projectId: "merida-47818", storageBucket: "merida-47818.appspot.com", messagingSenderId: "606896191722", appId: "1:606896191722:web:bf309888bd1cfbb6123f93", measurementId: "G-SPSG3DYMY7" };
             const ADMIN_EMAIL = "cleophasamutete@gmail.com";
-            // ... other constants and initialization are unchanged ...
-            let app, auth, db, functions;
-            try { app = initializeApp(firebaseConfig, "meridaAdminApp"); auth = getAuth(app); db = getFirestore(app); functions = getFunctions(app); } catch(e) { console.error(e); }
-
-            const DOMElements = { adminLoginContainer: document.getElementById('admin-login-container'), adminPanelContainer: document.getElementById('admin-panel-container'), claimContainer: document.getElementById('claim-container'), grantAdminBtn: document.getElementById('grant-admin-btn'), claimLogoutBtn: document.getElementById('claim-logout-btn'), adminLoginForm: document.getElementById('admin-login-form'), adminErrorMessage: document.getElementById('admin-error-message'), adminLogoutBtn: document.getElementById('admin-logout-btn'), notificationsList: document.getElementById('notifications-list'), usersList: document.getElementById('users-list'), userModal: document.getElementById('user-modal'), modalUsername: document.getElementById('modal-username'), modalLevelSelect: document.getElementById('modal-level'), updateUserBtn: document.getElementById('update-user-btn'), closeModalBtn: document.getElementById('close-user-modal-btn'), };
+            const INVESTMENT_LEVELS = { 'level-1': { name: 'Level 1 (Ksh 500)' }, 'level-2': { name: 'Level 2 (Ksh 1,000)' }, 'level-3': { name: 'Level 3 (Ksh 2,000)' }, 'level-4': { name: 'Level 4 (Ksh 3,000)' }, 'level-5': { name: 'Level 5 (Ksh 5,000)' }, 'level-6': { name: 'Level 6 (Ksh 10,000)' }, 'None': { name: 'No Level' } };
             
-            // onAuthStateChanged logic is unchanged
-            onAuthStateChanged(auth, user => {
-/* ... */
+            let app, auth, db, selectedUserId = null;
+            try { app = initializeApp(firebaseConfig, "meridaAdminApp"); auth = getAuth(app); db = getFirestore(app); } catch(e) { console.error(e); }
 
-    if (user) {
-        const adminDoc = await getDoc(doc(db, "admins", user.uid));
-        if (adminDoc.exists()) {
-            DOMElements.adminLoginContainer.style.display = 'none';
-            DOMElements.adminPanelContainer.classList.remove('hidden');
-        } else {
-            DOMElements.adminLoginContainer.style.display = 'none';
-            DOMElements.claimContainer.style.display = 'flex';
-        }
-    }
-});
+            const DOMElements = { loginContainer: document.getElementById('admin-login-container'), panelContainer: document.getElementById('admin-panel-container'), loginForm: document.getElementById('admin-login-form'), errorMessage: document.getElementById('admin-error-message'), logoutBtn: document.getElementById('admin-logout-btn'), withdrawalsList: document.getElementById('withdrawals-list'), usersList: document.getElementById('users-list'), userModal: document.getElementById('user-modal'), modalUsername: document.getElementById('modal-username'), modalLevelSelect: document.getElementById('modal-level'), updateUserBtn: document.getElementById('update-user-btn'), closeModalBtn: document.getElementById('close-user-modal-btn'), pageTitle: document.getElementById('page-title'), statTotalUsers: document.getElementById('total-users'), statTotalAssets: document.getElementById('total-assets'), statPendingWithdrawals: document.getElementById('pending-withdrawals'), withdrawalsBadge: document.getElementById('withdrawals-badge'), messageModal: document.getElementById('message-modal'), messageModalText: document.getElementById('message-modal-text') };
 
-            DOMElements.grantAdminBtn.addEventListener('click', async () => {
-    const user = auth.currentUser;
-    if (!user) return alert("You must be logged in.");
+            const showMessage = (text, isError = false) => { DOMElements.messageModalText.textContent = text; DOMElements.messageModal.classList.toggle('bg-red-500', isError); DOMElements.messageModal.classList.toggle('bg-green-500', !isError); DOMElements.messageModal.classList.remove('hidden'); setTimeout(() => DOMElements.messageModal.classList.add('hidden'), 3500); };
+            const updateBadge = (badge, count) => { badge.textContent = count; badge.classList.toggle('hidden', count === 0); };
+            const openUserModal = (uid, uname, level) => { selectedUserId = uid; DOMElements.modalUsername.textContent = `Manage: ${uname}`; populateLevelSelect(level); DOMElements.userModal.classList.remove('hidden'); };
+            const populateLevelSelect = (currentLevel) => { const levels = Object.keys(INVESTMENT_LEVELS); DOMElements.modalLevelSelect.innerHTML = levels.map(level => `<option value="${level}" ${level === currentLevel ? 'selected' : ''}>${INVESTMENT_LEVELS[level].name}</option>`).join(''); };
+            
+            const loadAllData = () => { listenForNotifications(); listenForUsers(); };
+            const listenForNotifications = () => {
+                const q = query(collection(db, 'admin_notifications'), orderBy('timestamp', 'desc'));
+                onSnapshot(q, (snapshot) => {
+                    DOMElements.withdrawalsList.innerHTML = '<p class="text-slate-500 p-4 text-center">No new withdrawal requests.</p>';
+                    let withdrawalCount = 0;
+                    snapshot.forEach(docSnap => {
+                        const notif = docSnap.data();
+                        if (notif.type === 'withdrawal_request') {
+                            if (withdrawalCount === 0) DOMElements.withdrawalsList.innerHTML = '';
+                            const el = document.createElement('div'); el.className = 'border p-3 rounded-lg shadow-sm';
+                            el.innerHTML = `<div><p><span class="font-semibold">${notif.username}</span> requests <span class="font-bold">Ksh ${notif.amount.toFixed(2)}</span>.</p><p class="text-xs text-slate-500">${notif.timestamp.toDate().toLocaleString()}</p></div><div class="flex space-x-2 mt-2"><button data-uid="${notif.userId}" data-amount="${notif.amount}" data-docid="${docSnap.id}" class="approve-withdrawal-btn flex-1 bg-green-500 text-white text-sm font-semibold py-1 px-3 rounded hover:bg-green-600">Approve</button><button data-uid="${notif.userId}" data-amount="${notif.amount}" data-docid="${docSnap.id}" class="reject-withdrawal-btn flex-1 bg-yellow-500 text-white text-sm font-semibold py-1 px-3 rounded hover:bg-yellow-600">Reject</button></div>`;
+                            DOMElements.withdrawalsList.appendChild(el); withdrawalCount++;
+                        }
+                    });
+                    updateBadge(DOMElements.withdrawalsBadge, withdrawalCount);
+                    DOMElements.statPendingWithdrawals.textContent = withdrawalCount;
+                });
+            };
+            const listenForUsers = () => {
+                const q = query(collection(db, 'users'), orderBy('createdAt', 'desc'));
+                onSnapshot(q, (snapshot) => {
+                    DOMElements.usersList.innerHTML = '<p class="text-slate-500 p-4 text-center">No registered users.</p>';
+                    if (snapshot.empty) { DOMElements.statTotalUsers.textContent = 0; DOMElements.statTotalAssets.textContent = 'Ksh 0.00'; return; }
+                    DOMElements.usersList.innerHTML = ''; let totalAssets = 0;
+                    snapshot.forEach(docSnap => {
+                        const user = docSnap.data(); const el = document.createElement('div'); el.className = 'border p-3 rounded-lg shadow-sm';
+                        el.innerHTML = `<div class="flex justify-between items-start"><div><p class="font-bold">${user.username} <span class="text-sm font-medium text-slate-600">(${user.email})</span></p><p class="text-sm text-green-700 font-semibold">Assets: Ksh ${user.totalAssets.toFixed(2)}</p><p class="text-xs text-slate-500">Level: ${INVESTMENT_LEVELS[user.investmentLevel]?.name || 'Unknown'}</p></div><div class="flex flex-col space-y-2"><button data-uid="${user.uid}" data-uname="${user.username}" data-level="${user.investmentLevel || 'None'}" class="manage-user-btn bg-slate-600 text-white text-xs font-semibold py-1 px-3 rounded hover:bg-slate-700">Manage</button><button data-uid="${user.uid}" data-uname="${user.username}" class="delete-user-btn bg-red-600 text-white text-xs font-semibold py-1 px-3 rounded hover:bg-red-700">Delete</button></div></div>`;
+                        DOMElements.usersList.appendChild(el); totalAssets += user.totalAssets;
+                    });
+                    DOMElements.statTotalUsers.textContent = snapshot.size; DOMElements.statTotalAssets.textContent = `Ksh ${totalAssets.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                });
+            };
 
-    try {
-        await setDoc(doc(db, "admins", user.uid), {
-            email: user.email,
-            grantedAt: serverTimestamp()
-        });
-        alert("Admin privileges granted! Please log out and log back in.");
-        signOut(auth);
-    } catch (error) {
-        alert("Error: " + error.message);
-    }
-});
+            // --- Event Listeners ---
+            onAuthStateChanged(auth, user => { DOMElements.loginContainer.style.display = 'none'; DOMElements.panelContainer.classList.add('hidden'); if (user && user.email.toLowerCase() === ADMIN_EMAIL) { DOMElements.panelContainer.classList.remove('hidden'); loadAllData(); } else { DOMElements.loginContainer.style.display = 'flex'; if (user) signOut(auth); } });
+            DOMElements.loginForm.addEventListener('submit', async e => { e.preventDefault(); const email = DOMElements.loginForm['admin-email'].value; DOMElements.errorMessage.textContent = ''; if (email.toLowerCase() !== ADMIN_EMAIL) { DOMElements.errorMessage.textContent = "Unauthorized email."; return; } try { await signInWithEmailAndPassword(auth, email, DOMElements.loginForm['admin-password'].value); } catch (e) { DOMElements.errorMessage.textContent = e.message; } });
+            DOMElements.logoutBtn.addEventListener('click', () => signOut(auth));
+            
+            document.addEventListener('click', async e => {
+                if (e.target.classList.contains('manage-user-btn')) { openUserModal(e.target.dataset.uid, e.target.dataset.uname, e.target.dataset.level); }
+                if (e.target.classList.contains('approve-withdrawal-btn')) { if (!confirm("Are you sure you have sent the money? This will approve the request.")) return; try { await deleteDoc(doc(db, 'admin_notifications', e.target.dataset.docid)); showMessage("Withdrawal approved."); } catch (err) { showMessage("Error: " + err.message, true); } }
+                if (e.target.classList.contains('reject-withdrawal-btn')) { if (!confirm("Reject withdrawal? Funds will be returned to the user.")) return; try { const userRef = doc(db, 'users', e.target.dataset.uid); await updateDoc(userRef, { totalAssets: increment(parseFloat(e.target.dataset.amount)) }); await deleteDoc(doc(db, 'admin_notifications', e.target.dataset.docid)); showMessage("Withdrawal rejected and funds returned."); } catch (err) { showMessage("Error: " + err.message, true); } }
+                if (e.target.classList.contains('delete-user-btn')) { const uname = e.target.dataset.uname; if (!confirm(`DANGER: Permanently delete user "${uname}"? THIS CANNOT BE UNDONE.`)) return; alert("User deletion requires a Cloud Function, which is not available on the free plan. To delete a user, go to the Firebase Console -> Authentication and delete them manually."); }
             });
+            
+            DOMElements.closeModalBtn.addEventListener('click', () => DOMElements.userModal.classList.add('hidden'));
+            DOMElements.updateUserBtn.addEventListener('click', async () => { if (!selectedUserId) return; const newLevel = DOMElements.modalLevelSelect.value; const userRef = doc(db, 'users', selectedUserId); try { await updateDoc(userRef, { investmentLevel: newLevel }); showMessage('User updated successfully!'); DOMElements.userModal.classList.add('hidden'); selectedUserId = null; } catch (err) { showMessage("Error: " + err.message, true); } });
 
-            // The rest of the event listeners and functions are unchanged
-            DOMElements.claimLogoutBtn.addEventListener('click', () => signOut(auth));
-            DOMElements.adminLoginForm.addEventListener('submit', async e => { /* ... */ });
-            // ... and so on
+            document.querySelectorAll('.sidebar-link').forEach(link => { link.addEventListener('click', (e) => { e.preventDefault(); const targetId = link.dataset.target; if (!targetId) return; document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active')); link.classList.add('active'); document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active')); document.getElementById(`${targetId}-section`).classList.add('active'); DOMElements.pageTitle.textContent = targetId.charAt(0).toUpperCase() + targetId.slice(1); }); });
         });
     </script>
 </body>
 </html>
-
-
-### **2. The Cloud Function (`functions/index.js`)**
-
-This is the secure backend code that the "Grant Privileges" button calls. This code must be deployed to your Firebase project.
-
-
-javascript
-const functions = require("firebase-functions");
-const admin = require("firebase-admin");
-
-admin.initializeApp();
-
-/**
- * Gives the user calling the function the 'admin' custom claim,
- * but only if their email matches the hardcoded admin email address.
- */
-exports.grantAdminRole = functions.https.onCall(async (data, context) => {
-  // Security check: Ensure the user is authenticated.
-  if (!context.auth) {
-    throw new functions.https.HttpsError(
-      "unauthenticated",
-      "The function must be called while authenticated."
-    );
-  }
-
-  const userEmail = context.auth.token.email;
-  const adminEmail = "cleophasamutete@gmail.com";
-
-  // Security check: Only the designated admin can proceed.
-  if (userEmail.toLowerCase() !== adminEmail.toLowerCase()) {
-    throw new functions.https.HttpsError(
-      "permission-denied",
-      "You are not authorized to perform this action."
-    );
-  }
-
-  try {
-    // Set the custom claim { admin: true }.
-    await admin.auth().setCustomUserClaims(context.auth.uid, { admin: true });
-    return {
-      message: Success! Admin role granted to ${userEmail}. Please log out and log back in.
-    };
-  } catch (error) {
-    console.error("Error setting custom claim:", error);
-    throw new functions.https.HttpsError("internal", "An internal error occurred.");
-  }
-});
