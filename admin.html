@@ -75,14 +75,40 @@
             </main>
         </div>
     </div>
-     <div id="message-modal" class="hidden fixed top-5 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-xl z-50 animate-pulse"><p id="message-modal-text"></p></div>
+
+    <!-- Modals -->
+    <div id="manage-user-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-40 p-4">
+        <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md">
+            <h3 class="font-bold text-xl mb-4" id="manage-user-title">Manage: User</h3>
+            <div class="space-y-4">
+                <div>
+                    <label for="manage-level-select" class="block text-sm font-medium text-gray-700">Set/Update Investment Level</label>
+                    <select id="manage-level-select" class="mt-1 block w-full px-3 py-2 bg-slate-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></select>
+                </div>
+                <div>
+                    <label for="manage-bonus-select" class="block text-sm font-medium text-gray-700">Add Referral Bonus to Sponsor?</label>
+                    <select id="manage-bonus-select" class="mt-1 block w-full px-3 py-2 bg-slate-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        <option value="no">No</option>
+                        <option value="yes">Yes</option>
+                    </select>
+                    <p class="text-xs text-slate-500 mt-1" id="manage-bonus-info">Sponsor: N/A</p>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end space-x-3">
+                <button id="close-manage-modal-btn" class="bg-slate-200 text-slate-700 font-bold py-2 px-4 rounded-lg hover:bg-slate-300">Close</button>
+                <button id="update-user-btn" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">Update User & Activate</button>
+            </div>
+        </div>
+    </div>
+    <div id="message-modal" class="hidden fixed top-5 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-xl z-50 animate-pulse"><p id="message-modal-text"></p></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, doc, updateDoc, deleteDoc, getDocs, query, where, increment, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, doc, updateDoc, deleteDoc, getDoc, query, where, increment, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         document.addEventListener("DOMContentLoaded", () => {
+            // --- Config ---
             const firebaseConfig = {
                 apiKey: "AIzaSyB8Ni8HRr5lbtvD3WDcly9xTAdAl2OKNNQ",
                 authDomain: "merida-47818.firebaseapp.com",
@@ -93,42 +119,32 @@
                 measurementId: "G-SPSG3DYMY7"
             };
             const ADMIN_EMAIL = 'cleophasamutete@gmail.com';
+            const INVESTMENT_LEVELS = {
+                'None': { name: 'No Level' },
+                'level-1': { name: 'Level 1 (Ksh 500)' },
+                'level-2': { name: 'Level 2 (Ksh 1,000)' },
+                'level-3': { name: 'Level 3 (Ksh 2,000)' },
+                'level-4': { name: 'Level 4 (Ksh 3,000)' },
+                'level-5': { name: 'Level 5 (Ksh 5,000)' },
+                'level-6': { name: 'Level 6 (Ksh 10,000)' },
+            };
+            const REFERRAL_BONUS_ONE_TIME = 50;
             let app, auth, db;
-            try {
-                app = initializeApp(firebaseConfig);
-                auth = getAuth(app);
-                db = getFirestore(app);
-            } catch (e) { console.error("Firebase init failed:", e); return; }
 
+            // --- Initialization ---
+            try { app = initializeApp(firebaseConfig); auth = getAuth(app); db = getFirestore(app); } catch (e) { console.error("Firebase init failed:", e); return; }
+
+            // --- DOM Elements ---
             const DOMElements = {
-                authContainer: document.getElementById('admin-auth-container'),
-                appContainer: document.getElementById('admin-app-container'),
-                errorMessage: document.getElementById('admin-error-message'),
-                loginForm: document.getElementById('admin-login-form'),
-                logoutBtn: document.getElementById('admin-logout-btn'),
-                navItems: document.querySelectorAll('.admin-nav-item'),
-                pages: {
-                    dashboard: document.getElementById('admin-page-dashboard'),
-                    users: document.getElementById('admin-page-users'),
-                    deposits: document.getElementById('admin-page-deposits'),
-                    withdrawals: document.getElementById('admin-page-withdrawals'),
-                },
-                allUsersList: document.getElementById('all-users-list'),
-                depositRequestsList: document.getElementById('deposit-requests-list'),
-                withdrawalRequestsList: document.getElementById('withdrawal-requests-list'),
-                totalUsersStat: document.getElementById('total-users-stat'),
-                pendingDepositsStat: document.getElementById('pending-deposits-stat'),
-                pendingWithdrawalsStat: document.getElementById('pending-withdrawals-stat'),
-                 messageModal: document.getElementById('message-modal'),
-                messageModalText: document.getElementById('message-modal-text'),
-            };
-            const showMessage = (text, isError = false) => { DOMElements.messageModalText.textContent = text; DOMElements.messageModal.classList.toggle('bg-red-500', isError); DOMElements.messageModal.classList.toggle('bg-green-500', !isError); DOMElements.messageModal.classList.remove('hidden'); setTimeout(() => DOMElements.messageModal.classList.add('hidden'), 3500); };
-            const switchPage = (pageName) => {
-                Object.values(DOMElements.pages).forEach(p => p.classList.add('hidden'));
-                if (DOMElements.pages[pageName]) DOMElements.pages[pageName].classList.remove('hidden');
-                DOMElements.navItems.forEach(item => item.classList.toggle('active', item.dataset.page === pageName));
+                authContainer: document.getElementById('admin-auth-container'), appContainer: document.getElementById('admin-app-container'), errorMessage: document.getElementById('admin-error-message'), loginForm: document.getElementById('admin-login-form'), logoutBtn: document.getElementById('admin-logout-btn'), navItems: document.querySelectorAll('.admin-nav-item'), pages: { dashboard: document.getElementById('admin-page-dashboard'), users: document.getElementById('admin-page-users'), deposits: document.getElementById('admin-page-deposits'), withdrawals: document.getElementById('admin-page-withdrawals'), }, allUsersList: document.getElementById('all-users-list'), depositRequestsList: document.getElementById('deposit-requests-list'), withdrawalRequestsList: document.getElementById('withdrawal-requests-list'), totalUsersStat: document.getElementById('total-users-stat'), pendingDepositsStat: document.getElementById('pending-deposits-stat'), pendingWithdrawalsStat: document.getElementById('pending-withdrawals-stat'), messageModal: document.getElementById('message-modal'), messageModalText: document.getElementById('message-modal-text'),
+                manageUserModal: document.getElementById('manage-user-modal'), manageUserTitle: document.getElementById('manage-user-title'), manageLevelSelect: document.getElementById('manage-level-select'), manageBonusSelect: document.getElementById('manage-bonus-select'), manageBonusInfo: document.getElementById('manage-bonus-info'), closeManageModalBtn: document.getElementById('close-manage-modal-btn'), updateUserBtn: document.getElementById('update-user-btn'),
             };
 
+            // --- Helper Functions ---
+            const showMessage = (text, isError = false) => { DOMElements.messageModalText.textContent = text; DOMElements.messageModal.classList.toggle('bg-red-500', isError); DOMElements.messageModal.classList.toggle('bg-green-500', !isError); DOMElements.messageModal.classList.remove('hidden'); setTimeout(() => DOMElements.messageModal.classList.add('hidden'), 3500); };
+            const switchPage = (pageName) => { Object.values(DOMElements.pages).forEach(p => p.classList.add('hidden')); if (DOMElements.pages[pageName]) DOMElements.pages[pageName].classList.remove('hidden'); DOMElements.navItems.forEach(item => item.classList.toggle('active', item.dataset.page === pageName)); };
+
+            // --- Render Functions ---
             const renderAllUsers = (users) => {
                 DOMElements.allUsersList.innerHTML = `
                     <table class="min-w-full text-sm text-left">
@@ -138,10 +154,9 @@
                         <tbody>${users.map(u => `
                             <tr class="border-b">
                                 <td class="p-2 font-semibold">${u.username}</td><td>${u.email}</td>
-                                <td><input data-uid="${u.uid}" class="level-input w-24 p-1 border rounded" type="text" value="${u.investmentLevel}"></td>
-                                <td>Ksh ${u.totalAssets.toFixed(2)}</td>
+                                <td>${INVESTMENT_LEVELS[u.investmentLevel]?.name || 'N/A'}</td><td>Ksh ${u.totalAssets.toFixed(2)}</td>
                                 <td>
-                                    <button data-uid="${u.uid}" class="update-level-btn bg-blue-500 text-white px-2 py-1 text-xs rounded hover:bg-blue-600">Save</button>
+                                    <button data-user='${JSON.stringify(u)}' class="manage-user-btn bg-blue-500 text-white px-2 py-1 text-xs rounded hover:bg-blue-600">Manage</button>
                                     <button data-uid="${u.uid}" data-username="${u.username}" class="delete-user-btn bg-red-500 text-white px-2 py-1 text-xs rounded hover:bg-red-600 ml-1">Delete</button>
                                 </td>
                             </tr>`).join('')}
@@ -160,131 +175,127 @@
                                 <p class="text-xs text-slate-400">${r.timestamp.toDate().toLocaleString()}</p>
                             </div>
                             <div>
-                                <button data-id="${r.id}" data-uid="${r.userId}" ${type === 'withdrawal' || type === 'deposit' ? `data-amount="${r.amount}"` : ''} class="approve-btn bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Approve</button>
-                                <button data-id="${r.id}" data-uid="${r.userId}" ${type === 'withdrawal' ? `data-amount="${r.amount}"` : ''} class="reject-btn bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 ml-2">Reject</button>
+                                <button data-id="${r.id}" class="approve-request-btn bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Approve</button>
+                                <button data-id="${r.id}" data-uid="${r.userId}" ${type === 'withdrawal' ? `data-amount="${r.amount}"` : ''} class="reject-request-btn bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 ml-2">Reject</button>
                             </div>
                         </div>`).join('')}
                     </div>`;
             };
 
+            const openManageUserModal = async (user) => {
+                DOMElements.manageUserTitle.textContent = `Manage: ${user.username}`;
+                DOMElements.updateUserBtn.dataset.uid = user.uid;
+                
+                // Populate levels
+                DOMElements.manageLevelSelect.innerHTML = Object.keys(INVESTMENT_LEVELS).map(key => `<option value="${key}" ${key === user.investmentLevel ? 'selected' : ''}>${INVESTMENT_LEVELS[key].name}</option>`).join('');
+                
+                // Handle bonus info
+                if (user.referrerId) {
+                    const referrerSnap = await getDoc(doc(db, "users", user.referrerId));
+                    const referrerName = referrerSnap.exists() ? referrerSnap.data().username : 'Unknown';
+                    DOMElements.manageBonusInfo.textContent = `Sponsor: ${referrerName}`;
+                    DOMElements.manageBonusSelect.disabled = user.referrerBonusPaid;
+                    DOMElements.updateUserBtn.dataset.referrerId = user.referrerId;
+                     if(user.referrerBonusPaid){
+                        DOMElements.manageBonusInfo.textContent += ' (Bonus Already Paid)';
+                        DOMElements.manageBonusSelect.value = 'no';
+                    }
+                } else {
+                    DOMElements.manageBonusInfo.textContent = 'Sponsor: N/A';
+                    DOMElements.manageBonusSelect.disabled = true;
+                    DOMElements.manageBonusSelect.value = 'no';
+                }
+                DOMElements.manageUserModal.classList.remove('hidden');
+            };
+
+            const payReferrerBonus = async (referrerId) => {
+                try {
+                    const referrerRef = doc(db, "users", referrerId);
+                    await updateDoc(referrerRef, { totalAssets: increment(REFERRAL_BONUS_ONE_TIME), totalReferralBonus: increment(REFERRAL_BONUS_ONE_TIME) });
+                    await addDoc(collection(db, "transactions"), { userId: referrerId, amount: REFERRAL_BONUS_ONE_TIME, type: 'referral_bonus', timestamp: serverTimestamp() });
+                    return true;
+                } catch(e) { console.error("Failed to pay referral bonus:", e); return false; }
+            };
+
+            // --- Event Handlers ---
             const handleRequest = async (e, action) => {
                 const { id, uid, amount } = e.target.dataset;
                 const isApproval = action === 'approve';
                 const type = e.target.closest('#deposit-requests-list') ? 'deposit' : 'withdrawal';
-
-                if (!confirm(`Are you sure you want to ${action} this ${type} request?`)) return;
+                if (!confirm(`Are you sure you want to ${action} this request?`)) return;
 
                 try {
-                    if (isApproval && type === 'withdrawal') {
-                        // Withdrawal approved, money already deducted on user side. Just delete notification.
-                         await deleteDoc(doc(db, "admin_notifications", id));
-                         showMessage('Withdrawal approved and removed.');
-                    } else if (!isApproval && type === 'withdrawal') {
-                        // Withdrawal rejected, refund the user.
-                        const userRef = doc(db, "users", uid);
-                        await updateDoc(userRef, { totalAssets: increment(parseFloat(amount)) });
-                        await deleteDoc(doc(db, "admin_notifications", id));
-                        showMessage('Withdrawal rejected and funds returned.');
-                    } else if (isApproval && type === 'deposit') {
-                        // Deposit approved. The admin should have verified the deposit.
-                        // Here we just delete the notification. The admin must manually update the user's level.
-                        await deleteDoc(doc(db, "admin_notifications", id));
-                        showMessage('Deposit approved. Remember to set user level.');
-                    } else if (!isApproval && type === 'deposit') {
-                        // Deposit rejected. Just delete the notification.
-                        await deleteDoc(doc(db, "admin_notifications", id));
-                        showMessage('Deposit request rejected.');
-                    }
-                } catch(err) {
-                    console.error("Error handling request:", err);
-                    showMessage('Operation failed.', true);
-                }
+                    if (type === 'withdrawal' && !isApproval) await updateDoc(doc(db, "users", uid), { totalAssets: increment(parseFloat(amount)) });
+                    await deleteDoc(doc(db, "admin_notifications", id));
+                    showMessage(`Request ${action}d successfully.`)
+                } catch(err) { showMessage('Operation failed.', true); }
             };
             
-            const deleteUser = async (e) => {
-                const { uid, username } = e.target.dataset;
+            const deleteUser = async (uid, username) => {
                 if (!confirm(`Are you sure you want to PERMANENTLY DELETE user "${username}"? This action cannot be undone.`)) return;
-                
-                try {
-                    // This is a "soft" delete from the admin panel's perspective.
-                    // We delete the user document in Firestore.
-                    // The actual user account in Firebase Auth would need to be deleted via a backend function for security reasons.
-                    await deleteDoc(doc(db, "users", uid));
-                    showMessage(`User ${username} deleted successfully.`);
-                } catch (err) {
-                    console.error("Error deleting user:", err);
-                    showMessage(`Failed to delete user ${username}.`, true)
-                }
+                try { await deleteDoc(doc(db, "users", uid)); showMessage(`User ${username} deleted.`); }
+                catch (err) { showMessage(`Failed to delete user ${username}.`, true); }
             };
 
-
-            DOMElements.loginForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                DOMElements.errorMessage.textContent = '';
-                try {
-                    const email = DOMElements.loginForm['admin-login-email'].value;
-                    const pass = DOMElements.loginForm['admin-login-password'].value;
-                    if (email.toLowerCase() !== ADMIN_EMAIL) {
-                        DOMElements.errorMessage.textContent = 'Access denied.';
-                        return;
-                    }
-                    await signInWithEmailAndPassword(auth, email, pass);
-                } catch (error) {
-                    DOMElements.errorMessage.textContent = error.message.replace('Firebase: ', '');
-                }
-            });
-
+            // --- Event Listeners Setup ---
+            DOMElements.loginForm.addEventListener('submit', async (e) => { e.preventDefault(); DOMElements.errorMessage.textContent = ''; const email = DOMElements.loginForm['admin-login-email'].value; if (email.toLowerCase() !== ADMIN_EMAIL) { DOMElements.errorMessage.textContent = 'Access denied.'; return; } try { await signInWithEmailAndPassword(auth, email, DOMElements.loginForm['admin-login-password'].value); } catch (error) { DOMElements.errorMessage.textContent = error.message.replace('Firebase: ', ''); } });
             DOMElements.logoutBtn.addEventListener('click', () => signOut(auth));
             DOMElements.navItems.forEach(item => item.addEventListener('click', () => switchPage(item.dataset.page)));
-
+            
             DOMElements.allUsersList.addEventListener('click', (e) => {
-                if(e.target.classList.contains('update-level-btn')) {
-                    const uid = e.target.dataset.uid;
-                    const newLevel = e.target.closest('tr').querySelector('.level-input').value;
-                    updateDoc(doc(db, "users", uid), { investmentLevel: newLevel })
-                        .then(() => showMessage('User level updated.'))
-                        .catch(err => showMessage('Update failed.', true));
-                }
-                 if(e.target.classList.contains('delete-user-btn')) {
-                    deleteUser(e);
-                }
+                if(e.target.classList.contains('manage-user-btn')) openManageUserModal(JSON.parse(e.target.dataset.user));
+                if(e.target.classList.contains('delete-user-btn')) deleteUser(e.target.dataset.uid, e.target.dataset.username);
             });
 
             DOMElements.depositRequestsList.addEventListener('click', (e) => {
-                if (e.target.classList.contains('approve-btn')) handleRequest(e, 'approve');
-                if (e.target.classList.contains('reject-btn')) handleRequest(e, 'reject');
+                if (e.target.classList.contains('approve-request-btn')) handleRequest(e, 'approve');
+                if (e.target.classList.contains('reject-request-btn')) handleRequest(e, 'reject');
             });
             DOMElements.withdrawalRequestsList.addEventListener('click', (e) => {
-                if (e.target.classList.contains('approve-btn')) handleRequest(e, 'approve');
-                if (e.target.classList.contains('reject-btn')) handleRequest(e, 'reject');
+                if (e.target.classList.contains('approve-request-btn')) handleRequest(e, 'approve');
+                if (e.target.classList.contains('reject-request-btn')) handleRequest(e, 'reject');
+            });
+            
+            DOMElements.closeManageModalBtn.addEventListener('click', () => DOMElements.manageUserModal.classList.add('hidden'));
+
+            DOMElements.updateUserBtn.addEventListener('click', async (e) => {
+                const { uid, referrerId } = e.target.dataset;
+                const newLevel = DOMElements.manageLevelSelect.value;
+                const giveBonus = DOMElements.manageBonusSelect.value === 'yes';
+                
+                const updates = { investmentLevel: newLevel };
+                
+                if(giveBonus && referrerId) {
+                   const success = await payReferrerBonus(referrerId);
+                   if (success) {
+                       updates.referrerBonusPaid = true;
+                       showMessage('Bonus paid to sponsor!');
+                   } else {
+                       showMessage('Could not pay bonus. Proceeding without it.', true);
+                   }
+                }
+                
+                try {
+                    await updateDoc(doc(db, "users", uid), updates);
+                    showMessage('User updated successfully!');
+                    DOMElements.manageUserModal.classList.add('hidden');
+                } catch(err) {
+                    showMessage('Failed to update user.', true);
+                }
             });
 
 
+            // --- Auth State & Firestore Snapshots ---
             onAuthStateChanged(auth, user => {
                 if (user && user.email.toLowerCase() === ADMIN_EMAIL) {
-                    DOMElements.authContainer.style.display = 'none';
-                    DOMElements.appContainer.style.display = 'block';
-                    switchPage('dashboard');
-
+                    DOMElements.authContainer.style.display = 'none'; DOMElements.appContainer.style.display = 'block'; switchPage('dashboard');
                     onSnapshot(collection(db, "users"), (snapshot) => renderAllUsers(snapshot.docs.map(d => ({...d.data(), uid: d.id}))));
-                    
                     const depositQuery = query(collection(db, "admin_notifications"), where("type", "==", "deposit_notification"));
-                    onSnapshot(depositQuery, (snapshot) => {
-                        const requests = snapshot.docs.map(d => ({...d.data(), id: d.id}));
-                        renderRequests(requests, DOMElements.depositRequestsList, 'deposit');
-                        DOMElements.pendingDepositsStat.textContent = requests.length;
-                    });
-                    
+                    onSnapshot(depositQuery, (snapshot) => { const reqs = snapshot.docs.map(d=>({...d.data(), id: d.id})); renderRequests(reqs, DOMElements.depositRequestsList, 'deposit'); DOMElements.pendingDepositsStat.textContent = reqs.length; });
                     const withdrawalQuery = query(collection(db, "admin_notifications"), where("type", "==", "withdrawal_request"));
-                    onSnapshot(withdrawalQuery, (snapshot) => {
-                        const requests = snapshot.docs.map(d => ({...d.data(), id: d.id}));
-                        renderRequests(requests, DOMElements.withdrawalRequestsList, 'withdrawal');
-                        DOMElements.pendingWithdrawalsStat.textContent = requests.length;
-                    });
-
+                    onSnapshot(withdrawalQuery, (snapshot) => { const reqs = snapshot.docs.map(d=>({...d.data(), id: d.id})); renderRequests(reqs, DOMElements.withdrawalRequestsList, 'withdrawal'); DOMElements.pendingWithdrawalsStat.textContent = reqs.length; });
                 } else {
-                    DOMElements.authContainer.style.display = 'flex';
-                    DOMElements.appContainer.style.display = 'none';
+                    DOMElements.authContainer.style.display = 'flex'; DOMElements.appContainer.style.display = 'none';
                 }
             });
         });
