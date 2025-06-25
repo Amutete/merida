@@ -36,44 +36,39 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, updateDoc, onSnapshot, query, orderBy, deleteDoc, getDoc, addDoc, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, updateDoc, onSnapshot, query, orderBy, deleteDoc, getDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-functions.js";
 
         document.addEventListener("DOMContentLoaded", () => {
-            const firebaseConfig = { apiKey: "YOUR_API_KEY", authDomain: "YOUR_AUTH_DOMAIN", projectId: "YOUR_PROJECT_ID", storageBucket: "YOUR_STORAGE_BUCKET", messagingSenderId: "YOUR_MESSAGING_SENDER_ID", appId: "YOUR_APP_ID" };
-            const ADMIN_EMAIL = "cleophasamutete@gmail.com"; // Admin email updated
+            // --- CORRECTED FIREBASE CONFIG AND ADMIN EMAIL ---
+            const firebaseConfig = {
+                apiKey: "AIzaSyB8Ni8HRr5lbtvD3WDcly9xTAdAl2OKNNQ",
+                authDomain: "merida-47818.firebaseapp.com",
+                projectId: "merida-47818",
+                storageBucket: "merida-47818.appspot.com",
+                messagingSenderId: "606896191722",
+                appId: "1:606896191722:web:bf309888bd1cfbb6123f93",
+                measurementId: "G-SPSG3DYMY7"
+            };
+            const ADMIN_EMAIL = "cleophasamutete@gmail.com";
+            
             const INVESTMENT_LEVELS = { 'level-1': { name: 'Level 1 (Ksh 500)' }, 'level-2': { name: 'Level 2 (Ksh 1,000)' }, 'level-3': { name: 'Level 3 (Ksh 2,000)' }, 'level-4': { name: 'Level 4 (Ksh 3,000)' }, 'level-5': { name: 'Level 5 (Ksh 5,000)' }, 'level-6': { name: 'Level 6 (Ksh 10,000)' }, 'None': { name: 'No Level' } };
             
-            let app, auth, db, functions;
+            let app, auth, db, functions, selectedUserId = null;
             try { app = initializeApp(firebaseConfig, "meridaAdminApp"); auth = getAuth(app); db = getFirestore(app); functions = getFunctions(app); } catch(e) { console.error(e); alert("Server connection failed."); }
 
             const DOMElements = { adminLoginContainer: document.getElementById('admin-login-container'), adminPanelContainer: document.getElementById('admin-panel-container'), claimContainer: document.getElementById('claim-container'), grantAdminBtn: document.getElementById('grant-admin-btn'), claimLogoutBtn: document.getElementById('claim-logout-btn'), adminLoginForm: document.getElementById('admin-login-form'), adminErrorMessage: document.getElementById('admin-error-message'), adminLogoutBtn: document.getElementById('admin-logout-btn'), notificationsList: document.getElementById('notifications-list'), usersList: document.getElementById('users-list'), userModal: document.getElementById('user-modal'), modalUsername: document.getElementById('modal-username'), modalLevelSelect: document.getElementById('modal-level'), updateUserBtn: document.getElementById('update-user-btn'), closeModalBtn: document.getElementById('close-user-modal-btn'), };
-            let selectedUserId = null;
 
             onAuthStateChanged(auth, user => {
                 DOMElements.adminLoginContainer.style.display = 'none';
                 DOMElements.adminPanelContainer.classList.add('hidden');
                 DOMElements.claimContainer.style.display = 'none';
-                
-if (user) {
-  const adminsRef = collection(db, 'admins');
-  const q = query(adminsRef);
-  onSnapshot(q, (snapshot) => {
-    const isAdmin = snapshot.docs.some(doc => doc.data().email.toLowerCase() === user.email.toLowerCase());
-
-    if (isAdmin) {
-      DOMElements.adminPanelContainer.classList.remove('hidden');
-      loadAllData();
-    } else {
-      DOMElements.adminLoginContainer.style.display = 'flex';
-      alert('Access denied: Not an admin.');
-      signOut(auth);
-    }
-  });
-} else {
-  DOMElements.adminLoginContainer.style.display = 'flex';
-}
-
+                if (user && user.email.toLowerCase() === ADMIN_EMAIL) {
+                    user.getIdTokenResult(true).then((idTokenResult) => {
+                        if (idTokenResult.claims.admin) { DOMElements.adminPanelContainer.classList.remove('hidden'); loadAllData(); } 
+                        else { DOMElements.claimContainer.style.display = 'flex'; }
+                    });
+                } else { DOMElements.adminLoginContainer.style.display = 'flex'; if (user) signOut(auth); }
             });
 
             DOMElements.grantAdminBtn.addEventListener('click', () => { const grantAdminRole = httpsCallable(functions, 'grantAdminRole'); grantAdminBtn.textContent = 'Granting...'; grantAdminBtn.disabled = true; grantAdminRole().then(r => { alert(r.data.message); signOut(auth); }).catch(e => { alert(`Error: ${e.message}`); grantAdminBtn.textContent = 'Grant Privileges'; grantAdminBtn.disabled = false; }); });
@@ -82,80 +77,14 @@ if (user) {
             DOMElements.adminLogoutBtn.addEventListener('click', () => signOut(auth));
             
             const loadAllData = () => { loadNotifications(); loadUsers(); };
-
-            const loadNotifications = () => { const q = query(collection(db, 'admin_notifications'), orderBy('timestamp', 'desc'));
-                onSnapshot(q, (snapshot) => { 
-                    DOMElements.notificationsList.innerHTML = '<p class="text-slate-500">No new withdrawal requests.</p>'; 
-                    if (snapshot.empty) return; 
-                    DOMElements.notificationsList.innerHTML = ''; 
-                    snapshot.forEach(docSnap => { 
-                        const notif = docSnap.data(); 
-                        const el = document.createElement('div'); 
-                        el.className = 'border p-3 rounded-lg shadow-sm flex justify-between items-center'; 
-                        el.innerHTML = `<div><p><span class="font-semibold">${notif.username}</span> requests <span class="font-bold">Ksh ${notif.amount}</span>.</p><p class="text-xs text-slate-500">${notif.timestamp.toDate().toLocaleString()}</p></div>
-                                      <div class="flex space-x-2">
-                                        <button data-docid="${docSnap.id}" class="approve-withdrawal-btn bg-green-500 text-white text-sm font-semibold py-1 px-3 rounded hover:bg-green-600">Approve</button>
-                                        <button data-docid="${docSnap.id}" data-userid="${notif.userId}" data-amount="${notif.amount}" class="reject-withdrawal-btn bg-yellow-500 text-white text-sm font-semibold py-1 px-3 rounded hover:bg-yellow-600">Reject</button>
-                                      </div>`; 
-                        DOMElements.notificationsList.appendChild(el); 
-                    }); 
-                });
-            };
-
-            const loadUsers = () => { const q = query(collection(db, 'users'), orderBy('createdAt', 'desc'));
-                onSnapshot(q, (snapshot) => { 
-                    DOMElements.usersList.innerHTML = '<p class="text-slate-500">No users found.</p>'; 
-                    if(snapshot.empty) return; 
-                    DOMElements.usersList.innerHTML = ''; 
-                    snapshot.forEach(docSnap => { 
-                        const user = docSnap.data(); 
-                        const el = document.createElement('div'); 
-                        el.className = 'border p-3 rounded-lg flex justify-between items-center shadow-sm'; 
-                        el.innerHTML = `<div><p class="font-bold">${user.username} <span class="text-sm font-medium text-slate-600">(${user.email})</span></p><p class="text-sm text-green-700 font-semibold">Assets: Ksh ${user.totalAssets.toFixed(2)}</p><p class="text-xs text-slate-500">Level: ${INVESTMENT_LEVELS[user.investmentLevel]?.name || 'N/A'}</p></div>
-                                      <div class="flex space-x-2">
-                                          <button data-uid="${user.uid}" data-uname="${user.username}" data-level="${user.investmentLevel || 'None'}" class="manage-user-btn bg-slate-600 text-white text-sm font-semibold py-1 px-3 rounded hover:bg-slate-700">Manage</button>
-                                          <button data-uid="${user.uid}" class="delete-user-btn bg-red-500 text-white text-sm font-semibold py-1 px-3 rounded hover:bg-red-600">Delete</button>
-                                      </div>`; 
-                        DOMElements.usersList.appendChild(el); 
-                    }); 
-                });
-            };
+            const loadNotifications = () => { const q = query(collection(db, 'admin_notifications'), orderBy('timestamp', 'desc')); onSnapshot(q, (snapshot) => { DOMElements.notificationsList.innerHTML = '<p class="text-slate-500">No new withdrawal requests.</p>'; if (snapshot.empty) return; DOMElements.notificationsList.innerHTML = ''; snapshot.forEach(docSnap => { const notif = docSnap.data(); const el = document.createElement('div'); el.className = 'border p-3 rounded-lg shadow-sm flex justify-between items-center'; el.innerHTML = `<div><p><span class="font-semibold">${notif.username}</span> requests <span class="font-bold">Ksh ${notif.amount}</span>.</p><p class="text-xs text-slate-500">${notif.timestamp.toDate().toLocaleString()}</p></div><button data-docid="${docSnap.id}" class="approve-withdrawal-btn bg-green-500 text-white text-sm font-semibold py-1 px-3 rounded hover:bg-green-600">Approve</button>`; DOMElements.notificationsList.appendChild(el); }); }); };
+            const loadUsers = () => { const q = query(collection(db, 'users'), orderBy('createdAt', 'desc')); onSnapshot(q, (snapshot) => { DOMElements.usersList.innerHTML = '<p class="text-slate-500">No users found.</p>'; if(snapshot.empty) return; DOMElements.usersList.innerHTML = ''; snapshot.forEach(docSnap => { const user = docSnap.data(); const el = document.createElement('div'); el.className = 'border p-3 rounded-lg flex justify-between items-center shadow-sm'; el.innerHTML = `<div><p class="font-bold">${user.username} <span class="text-sm font-medium text-slate-600">(${user.email})</span></p><p class="text-sm text-green-700 font-semibold">Assets: Ksh ${user.totalAssets.toFixed(2)}</p><p class="text-xs text-slate-500">Level: ${INVESTMENT_LEVELS[user.investmentLevel]?.name || 'Unknown'}</p></div><button data-uid="${user.uid}" data-uname="${user.username}" data-level="${user.investmentLevel || 'None'}" class="manage-user-btn bg-slate-600 text-white text-sm font-semibold py-1 px-3 rounded hover:bg-slate-700">Manage</button>`; DOMElements.usersList.appendChild(el); }); }); };
 
             document.addEventListener('click', async e => {
-                if (e.target.classList.contains('manage-user-btn')) { 
-                    openUserModal(e.target.dataset.uid, e.target.dataset.uname, e.target.dataset.level); 
-                }
-                if (e.target.classList.contains('approve-withdrawal-btn')) { 
-                    if (!confirm("CONFIRM: Have you sent the money? This will approve the request and cannot be undone.")) return; 
-                    try { 
-                        await deleteDoc(doc(db, 'admin_notifications', e.target.dataset.docid)); 
-                        alert("Success! Withdrawal approved."); 
-                    } catch (err) { alert(`Error: ${err.message}`); } 
-                }
-                if (e.target.classList.contains('reject-withdrawal-btn')) {
-                    if (!confirm("Are you sure you want to REJECT this withdrawal? The funds will be returned to the user.")) return;
-                    const { docid, userid, amount } = e.target.dataset;
-                    const userRef = doc(db, 'users', userid);
-                    try {
-                        await updateDoc(userRef, { totalAssets: increment(parseFloat(amount)) });
-                        await deleteDoc(doc(db, 'admin_notifications', docid));
-                        alert('Success! Withdrawal rejected and funds returned to user.');
-                    } catch (err) {
-                        alert(`Error rejecting withdrawal: ${err.message}`);
-                    }
-                }
-                if (e.target.classList.contains('delete-user-btn')) {
-                    const userId = e.target.dataset.uid;
-                    if (!confirm(`Are you sure you want to DELETE this user (${userId})? This action cannot be undone.`)) return;
-                    try {
-                        await deleteDoc(doc(db, 'users', userId));
-                        alert('User document deleted successfully. Note: This does not delete the user from Firebase Authentication, which requires a backend function.');
-                    } catch (err) {
-                        alert(`Error deleting user: ${err.message}`);
-                    }
-                }
+                if (e.target.classList.contains('manage-user-btn')) { openUserModal(e.target.dataset.uid, e.target.dataset.uname, e.target.dataset.level); }
+                if (e.target.classList.contains('approve-withdrawal-btn')) { if (!confirm("CONFIRM: Have you sent the money? This will approve the request and cannot be undone.")) return; try { await deleteDoc(doc(db, 'admin_notifications', e.target.dataset.docid)); alert("Success! Withdrawal approved."); } catch (err) { alert(`Error: ${err.message}`); } }
             });
-
+            
             DOMElements.closeModalBtn.addEventListener('click', () => DOMElements.userModal.classList.add('hidden'));
             DOMElements.updateUserBtn.addEventListener('click', async () => { if (!selectedUserId) return; const newLevel = DOMElements.modalLevelSelect.value; const userRef = doc(db, 'users', selectedUserId); try { await updateDoc(userRef, { investmentLevel: newLevel }); alert('User updated successfully!'); DOMElements.userModal.classList.add('hidden'); selectedUserId = null; } catch (err) { alert(`Error: ${err.message}`); } });
             
