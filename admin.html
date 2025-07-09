@@ -796,13 +796,16 @@
 
                         if (!querySnapshot.empty) {
                             const userDoc = querySnapshot.docs[0];
-                            await addDoc(collection(db, `users/${userDoc.id}/notifications`), {
+                            // --- START CORRECTION 1 ---
+                            await addDoc(collection(db, 'notifications'), { // Changed to top-level 'notifications'
+                                userId: userDoc.id, // Added userId to the document
                                 title,
                                 message,
                                 type,
                                 timestamp: serverTimestamp(),
                                 read: false
                             });
+                            // --- END CORRECTION 1 ---
                             showMessage(`Notification sent to ${targetUser}!`);
                         } else {
                             showMessage(`User "${targetUser}" not found.`, 'error');
@@ -814,14 +817,17 @@
                         const batch = writeBatch(db);
 
                         querySnapshot.forEach((userDoc) => {
-                            const notificationRef = collection(db, `users/${userDoc.id}/notifications`);
-                            batch.set(notificationRef.doc(), {
+                            // --- START CORRECTION 2 ---
+                            const notificationRef = doc(collection(db, 'notifications')); // Changed to top-level 'notifications'
+                            batch.set(notificationRef, { // Use the ref directly
+                                userId: userDoc.id, // Added userId to the document
                                 title,
                                 message,
                                 type,
                                 timestamp: serverTimestamp(),
                                 read: false
                             });
+                            // --- END CORRECTION 2 ---
                         });
                         await batch.commit();
                         showMessage('Notification sent to all users!');
