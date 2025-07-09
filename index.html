@@ -495,7 +495,7 @@
         DOMElements.logoutBtn.addEventListener('click', () => { if (confirm("Are you sure?")) signOut(auth); });
         DOMElements.copyReferralBtn.addEventListener('click', () => { DOMElements.referralLinkInput.select(); document.execCommand('copy'); showMessage('Referral link copied!'); });
         
-        // MODIFIED Deposit Listeners
+        // Deposit Listeners
         DOMElements.depositBtn.addEventListener('click', () => {
             DOMElements.depositModal.classList.remove('hidden');
             DOMElements.depositStep1.classList.remove('hidden');
@@ -524,7 +524,7 @@
             submitBtn.textContent = 'Submitting...';
 
             try {
-                // *** CHANGED THIS BLOCK ***
+                // *** THIS BLOCK WAS MODIFIED ***
                 await addDoc(collection(db, 'deposits'), { // Changed collection to 'deposits'
                     userId: auth.currentUser.uid,
                     username: currentUserData.username,
@@ -561,7 +561,7 @@
                 const batch = writeBatch(db);
                 batch.update(userRef, { totalAssets: increment(-amount), lastWithdrawalDate: serverTimestamp() });
                 
-                // *** CHANGED THIS BLOCK ***
+                // *** THIS BLOCK WAS MODIFIED ***
                 const withdrawalRef = doc(collection(db, 'withdrawals')); // Changed collection to 'withdrawals'
                 batch.set(withdrawalRef, { 
                     userId: auth.currentUser.uid, 
