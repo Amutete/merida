@@ -18,6 +18,7 @@
 </head>
 <body class="bg-slate-100">
 
+    <!-- Auth Container -->
     <div id="auth-container" style="display: none;" class="min-h-screen bg-gradient-to-br from-blue-500 to-blue-700 flex flex-col items-center justify-center p-4">
         <h1 class="text-7xl font-black text-white merida-logo-text mb-6">MERIDA</h1>
         <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-6">
@@ -43,6 +44,7 @@
         </div>
     </div>
 
+    <!-- App Container -->
     <div id="app-container" class="hidden w-full max-w-lg mx-auto bg-slate-200 flex-col h-screen">
         <header class="bg-blue-600 text-white p-4 shadow-lg flex justify-between items-center z-10 sticky top-0">
              <div><p class="text-sm opacity-80">Welcome back,</p><h2 id="user-name-display" class="font-bold text-xl">User</h2></div>
@@ -50,6 +52,7 @@
         </header>
 
         <main class="flex-grow p-4 overflow-y-auto pb-24">
+            <!-- Home Page -->
             <div id="page-home">
                 <h3 class="font-bold text-2xl text-slate-800 mb-4">Dashboard</h3>
                 <div class="grid grid-cols-2 gap-4 text-center mb-6">
@@ -81,11 +84,13 @@
                     </div>
                  </div>
             </div>
+            <!-- Work Page -->
             <div id="page-work" class="hidden text-center">
                  <h3 class="font-bold text-2xl text-slate-800 mb-6">Today's Task</h3>
                  <div id="work-content" class="bg-white rounded-lg p-6 shadow-md min-h-[150px] flex items-center justify-center"></div>
                  <div id="task-feedback" class="mt-4 text-green-600 font-semibold h-5"></div>
             </div>
+            <!-- Profit Page -->
             <div id="page-profit" class="hidden">
                  <h3 class="font-bold text-2xl text-slate-800 mb-6">Profit Overview</h3>
                  <div class="grid grid-cols-2 gap-4 mb-6">
@@ -101,6 +106,7 @@
                 <h4 class="font-bold text-xl text-slate-700 mb-3">Transaction Log</h4>
                 <div id="transaction-log" class="space-y-3"></div>
             </div>
+            <!-- My Page -->
             <div id="page-my" class="hidden">
                  <h3 class="font-bold text-2xl text-slate-800 mb-6">My Profile</h3>
                 <div class="bg-white p-4 rounded-lg shadow-md mb-6"><h4 class="font-bold text-lg text-slate-700 mb-3">Personal Details</h4><div class="space-y-2 text-sm"><p><span class="font-semibold">Username:</span> <span id="my-username"></span></p><p><span class="font-semibold">Email:</span> <span id="my-email"></span></p><p><span class="font-semibold">User ID:</span> <span id="my-userid" class="text-xs text-slate-500"></span></p></div></div>
@@ -110,6 +116,7 @@
             </div>
         </main>
 
+        <!-- Navigation Footer -->
         <footer class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex justify-around max-w-lg mx-auto">
              <button data-page="home" class="nav-item flex-1 py-3 text-center text-slate-600 hover:bg-slate-100 transition active"><i class="fas fa-home text-xl"></i><span class="block text-xs font-medium">Home</span></button>
              <button data-page="work" class="nav-item flex-1 py-3 text-center text-slate-600 hover:bg-slate-100 transition"><i class="fas fa-briefcase text-xl"></i><span class="block text-xs font-medium">Work</span></button>
@@ -118,6 +125,7 @@
         </footer>
     </div>
     
+    <!-- Modals -->
     <div id="deposit-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-40 p-4">
         <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm text-center">
             <h3 class="font-bold text-xl mb-4">Deposit Instructions</h3>
@@ -177,33 +185,10 @@
             // --- Firestore & User Data Functions ---
             const createUserProfile = async (user, username) => { const userRef = doc(db, "users", user.uid); const urlParams = new URLSearchParams(window.location.search); await setDoc(userRef, { uid: user.uid, username, email: user.email, createdAt: serverTimestamp(), investmentLevel: 'None', totalAssets: 0, totalTaskProfit: 0, totalReferralBonus: 0, referrerBonusPaid: false, referrerId: urlParams.get('ref') || null, lastResetDate: new Date().toISOString().split('T')[0], tasksCompletedToday: 0 }); };
             const listenToUserData = (user) => { if (unsubscribeUser) unsubscribeUser(); const userRef = doc(db, "users", user.uid); unsubscribeUser = onSnapshot(userRef, async (docSnap) => { if (docSnap.exists()) { const previousLevel = currentUserData?.investmentLevel; const userData = { id: docSnap.id, ...docSnap.data() }; currentUserData = userData; const currentLevel = userData.investmentLevel; if (previousLevel === 'None' && currentLevel !== 'None' && userData.referrerId && !userData.referrerBonusPaid) { await payReferrerBonus(userData.referrerId, userData.uid, userData.username); await updateDoc(userRef, { referrerBonusPaid: true }); } await checkAndResetTasks(user.uid, userData); updateUI(userData); } }, e => console.error("Listen Error:", e)); };
-            const payReferrerBonus = async (referrerId, newUserId, newUsername) => { try { const referrerRef = doc(db, "users", referrerId); await updateDoc(referrerRef, { totalAssets: increment(REFERRAL_BONUS_ONE_TIME), totalReferralBonus: increment(REFERRAL_BONUS_ONE_TIME) }); await addDoc(collection(db, "users", referrerId, "transactions"), { userId: referrerId, amount: REFERRAL_BONUS_ONE_TIME, type: 'referral_bonus', fromUser: newUsername, timestamp: serverTimestamp() }); } catch(e) { console.error("Failed to pay referral bonus:", e); }};
+            const payReferrerBonus = async (referrerId, newUserId, newUsername) => { try { const referrerRef = doc(db, "users", referrerId); await updateDoc(referrerRef, { totalAssets: increment(REFERRAL_BONUS_ONE_TIME), totalReferralBonus: increment(REFERRAL_BONUS_ONE_TIME) }); await addDoc(collection(db, "transactions"), { userId: referrerId, amount: REFERRAL_BONUS_ONE_TIME, type: 'referral_bonus', fromUser: newUsername, timestamp: serverTimestamp() }); } catch(e) { console.error("Failed to pay referral bonus:", e); }};
             const checkAndResetTasks = async (userId, userData) => { const today = new Date().toISOString().split('T')[0]; if (today !== userData.lastResetDate) { await updateDoc(doc(db, "users", userId), { tasksCompletedToday: 0, lastResetDate: today }); } };
             const updateUI = (data) => { if (!data) return; DOMElements.userNameDisplay.textContent = data.username; DOMElements.totalAssetsDisplay.textContent = `Ksh ${data.totalAssets.toFixed(2)}`; DOMElements.myUsername.textContent = data.username; DOMElements.myEmail.textContent = data.email; DOMElements.myUserid.textContent = data.uid; DOMElements.referralLinkInput.value = `${window.location.origin}${window.location.pathname}?ref=${data.uid}`; renderWorkPage(data); };
             
-            // --- Notification Listener ---
-            const listenForAdminNotifications = (userId) => {
-                const q = query(
-                    collection(db, "notifications"), 
-                    where("userId", "==", userId), 
-                    where("read", "==", false),
-                    orderBy("timestamp", "desc")
-                );
-
-                onSnapshot(q, (snapshot) => {
-                    snapshot.docChanges().forEach(async (change) => {
-                        if (change.type === "added") {
-                            const notification = change.doc.data();
-                            const notifId = change.doc.id;
-                            
-                            showMessage(`Admin: ${notification.message}`);
-                            
-                            await updateDoc(doc(db, "notifications", notifId), { read: true });
-                        }
-                    });
-                });
-            };
-
             // --- Page Rendering Functions ---
             const renderWorkPage = (data) => {
                 const levelKey = data.investmentLevel || 'None';
@@ -222,8 +207,8 @@
             const handleWorkButtonClick = () => { if (taskTimerEndTime && (taskTimerEndTime - Date.now()) > 0) return; if (taskTimerEndTime) completeTask(); else startTaskTimer(); };
             const startTaskTimer = () => { taskTimerEndTime = Date.now() + 45 * 60 * 1000; // 45 minutes
                 renderWorkPage(currentUserData); taskTimerInterval = setInterval(() => { const timeLeft = taskTimerEndTime - Date.now(); if (timeLeft <= 0) { clearInterval(taskTimerInterval); taskTimerInterval = null; renderWorkPage(currentUserData); } else { const workButton = document.getElementById('work-button'); if (workButton) { const minutesLeft = Math.ceil(timeLeft / (60 * 1000)); workButton.textContent = `Working... (${minutesLeft} min left)`; } } }, 10000); };
-            const completeTask = async () => { taskTimerEndTime = null; const levelInfo = INVESTMENT_LEVELS[currentUserData.investmentLevel]; const earnings = levelInfo.dailyIncome; const userRef = doc(db, "users", auth.currentUser.uid); try { await updateDoc(userRef, { totalAssets: increment(earnings), tasksCompletedToday: increment(1), totalTaskProfit: increment(earnings) }); await addDoc(collection(db, "users", auth.currentUser.uid, "transactions"), { userId: auth.currentUser.uid, amount: earnings, type: 'task_profit', timestamp: serverTimestamp() }); DOMElements.taskFeedback.textContent = `Task completed! +Ksh ${earnings.toFixed(2)} added.`; setTimeout(() => DOMElements.taskFeedback.textContent = '', 3000); } catch (e) { showMessage("Error completing task.", true); } };
-            const renderProfitPage = async () => { DOMElements.taskProfitsDisplay.textContent = `Ksh ${(currentUserData.totalTaskProfit || 0).toFixed(2)}`; DOMElements.referralBonusesDisplay.textContent = `Ksh ${(currentUserData.totalReferralBonus || 0).toFixed(2)}`; const q = query(collection(db, "users", auth.currentUser.uid, "transactions"), orderBy("timestamp", "desc")); const querySnapshot = await getDocs(q); DOMElements.transactionLog.innerHTML = ''; if (querySnapshot.empty) { DOMElements.transactionLog.innerHTML = '<p class="text-slate-500 text-center">No transactions yet.</p>'; return; } querySnapshot.docs.forEach(docSnap => { const t = docSnap.data(); let title, amountText, amountColor; switch (t.type) { case 'task_profit': title = 'Task Profit'; amountText = `+ Ksh ${t.amount.toFixed(2)}`; amountColor = 'text-green-600'; break; case 'withdrawal_pending': title = 'Withdrawal (Pending)'; amountText = `- Ksh ${t.amount.toFixed(2)}`; amountColor = 'text-red-600'; break; case 'withdrawal_approved': title = 'Withdrawal (Approved)'; amountText = `- Ksh ${t.amount.toFixed(2)}`; amountColor = 'text-red-600'; break; case 'deposit': title = 'Deposit'; amountText = `+ Ksh ${t.amount.toFixed(2)}`; amountColor = 'text-green-600'; break; case 'referral_bonus': title = `Referral Bonus`; amountText = `+ Ksh ${t.amount.toFixed(2)}`; amountColor = 'text-blue-600'; break; default: title = 'Transaction'; amountText = `Ksh ${t.amount.toFixed(2)}`; amountColor = 'text-slate-800'; }
+            const completeTask = async () => { taskTimerEndTime = null; const levelInfo = INVESTMENT_LEVELS[currentUserData.investmentLevel]; const earnings = levelInfo.dailyIncome; const userRef = doc(db, "users", auth.currentUser.uid); try { await updateDoc(userRef, { totalAssets: increment(earnings), tasksCompletedToday: increment(1), totalTaskProfit: increment(earnings) }); await addDoc(collection(db, "transactions"), { userId: auth.currentUser.uid, amount: earnings, type: 'task_profit', timestamp: serverTimestamp() }); DOMElements.taskFeedback.textContent = `Task completed! +Ksh ${earnings.toFixed(2)} added.`; setTimeout(() => DOMElements.taskFeedback.textContent = '', 3000); } catch (e) { showMessage("Error completing task.", true); } };
+            const renderProfitPage = async () => { DOMElements.taskProfitsDisplay.textContent = `Ksh ${(currentUserData.totalTaskProfit || 0).toFixed(2)}`; DOMElements.referralBonusesDisplay.textContent = `Ksh ${(currentUserData.totalReferralBonus || 0).toFixed(2)}`; const q = query(collection(db, "transactions"), where("userId", "==", auth.currentUser.uid), orderBy("timestamp", "desc")); const querySnapshot = await getDocs(q); DOMElements.transactionLog.innerHTML = ''; if (querySnapshot.empty) { DOMElements.transactionLog.innerHTML = '<p class="text-slate-500 text-center">No transactions yet.</p>'; return; } querySnapshot.docs.forEach(docSnap => { const t = docSnap.data(); let title, amountText, amountColor; switch (t.type) { case 'task_profit': title = 'Task Profit'; amountText = `+ Ksh ${t.amount.toFixed(2)}`; amountColor = 'text-green-600'; break; case 'withdrawal': title = 'Withdrawal'; amountText = `- Ksh ${t.amount.toFixed(2)}`; amountColor = 'text-red-600'; break; case 'referral_bonus': title = `Referral Bonus`; amountText = `+ Ksh ${t.amount.toFixed(2)}`; amountColor = 'text-blue-600'; break; default: title = 'Transaction'; amountText = `Ksh ${t.amount.toFixed(2)}`; amountColor = 'text-slate-800'; }
             DOMElements.transactionLog.innerHTML += `<div class="bg-white p-3 rounded-lg shadow-sm flex justify-between items-center"><div><p class="font-semibold text-slate-800">${title}</p><p class="text-xs text-slate-500">${t.timestamp.toDate().toLocaleString()}</p></div><p class="font-bold ${amountColor}">${amountText}</p></div>`; }); };
             const renderMyTeam = async () => { const q = query(collection(db, "users"), where("referrerId", "==", auth.currentUser.uid)); const querySnapshot = await getDocs(q); DOMElements.myTeamList.innerHTML = ''; if (querySnapshot.empty) { DOMElements.myTeamList.innerHTML = '<p class="text-slate-500 text-center">No referrals yet.</p>'; return; } querySnapshot.forEach(docSnap => { const member = docSnap.data(); const status = member.investmentLevel === 'None' ? 'Registered' : 'Active'; DOMElements.myTeamList.innerHTML += `<div class="bg-slate-100 p-2 rounded-md flex justify-between items-center text-sm"><p class="font-semibold">${member.username}</p><p class="font-bold ${status === 'Active' ? 'text-green-500' : 'text-yellow-500'}">${status}</p></div>`; }); };
 
@@ -238,86 +223,17 @@
             // Deposit Modal Logic
             DOMElements.depositBtn.addEventListener('click', () => DOMElements.depositModal.classList.remove('hidden'));
             DOMElements.closeDepositModalBtn.addEventListener('click', () => DOMElements.depositModal.classList.add('hidden'));
-            DOMElements.notifyDepositBtn.addEventListener('click', async () => {
-                try {
-                    // **FIXED**: Writes to the 'deposits' collection, which the admin panel is listening to.
-                    await addDoc(collection(db, 'deposits'), {
-                        userId: auth.currentUser.uid,
-                        username: currentUserData.username,
-                        amount: 0, // In a real app, you would add an input for the user to specify the amount.
-                        method: 'M-Pesa',
-                        reference: 'User Notified Via App',
-                        status: 'pending',
-                        timestamp: serverTimestamp()
-                    });
-                    showMessage('Admin has been notified of your deposit!');
-                    DOMElements.depositModal.classList.add('hidden');
-                } catch (e) {
-                    console.error("Deposit notification error:", e);
-                    showMessage('Notification failed. Please try again.', true);
-                }
-            });
+            DOMElements.notifyDepositBtn.addEventListener('click', async () => { try { await addDoc(collection(db, 'admin_notifications'), { userId: auth.currentUser.uid, username: currentUserData.username, type: 'deposit_notification', message: `${currentUserData.username} has notified of a deposit.`, timestamp: serverTimestamp() }); showMessage('Admin has been notified!'); DOMElements.depositModal.classList.add('hidden'); } catch (e) { showMessage('Notification failed. Please try again.', true); } });
 
             // Withdraw Modal Logic
             DOMElements.withdrawBtn.addEventListener('click', () => { if (!currentUserData) return; const levelInfo = INVESTMENT_LEVELS[currentUserData.investmentLevel || 'None']; if (currentUserData.totalAssets < levelInfo.minWithdraw) { showMessage(`You need at least Ksh ${levelInfo.minWithdraw} to make a withdrawal at your current level.`, true); return; } DOMElements.withdrawModal.classList.remove('hidden'); });
             DOMElements.cancelWithdrawModalBtn.addEventListener('click', () => DOMElements.withdrawModal.classList.add('hidden'));
-            DOMElements.submitWithdrawalBtn.addEventListener('click', async () => {
-                const levelInfo = INVESTMENT_LEVELS[currentUserData.investmentLevel || 'None'];
-                const amount = parseFloat(DOMElements.withdrawAmountInput.value);
-                if (isNaN(amount) || amount <= 0) { showMessage('Invalid amount.', true); return; }
-                if (amount > currentUserData.totalAssets) { showMessage('Insufficient funds.', true); return; }
-                if (amount < levelInfo.minWithdraw) { showMessage(`Minimum withdrawal for your level is Ksh ${levelInfo.minWithdraw}.`, true); return; }
-                try {
-                    // **FIXED**: Writes to the 'withdrawals' collection.
-                    await addDoc(collection(db, 'withdrawals'), {
-                        userId: auth.currentUser.uid,
-                        username: currentUserData.username,
-                        amount: amount,
-                        status: 'pending',
-                        timestamp: serverTimestamp()
-                    });
-                    
-                    // Note: Ideally, the user's balance should only be updated by the admin upon approval.
-                    // This creates a "pending" state on the user's side.
-                    await updateDoc(doc(db, "users", auth.currentUser.uid), { 
-                        totalAssets: increment(-amount),
-                        pendingWithdrawalsAmount: increment(amount) // New field to track pending money
-                    });
-
-                    // Log the pending transaction
-                    await addDoc(collection(db, "users", auth.currentUser.uid, "transactions"), { 
-                        userId: auth.currentUser.uid, 
-                        amount: amount, 
-                        type: 'withdrawal_pending', 
-                        timestamp: serverTimestamp() 
-                    });
-
-                    showMessage('Withdrawal request sent!');
-                    DOMElements.withdrawModal.classList.add('hidden');
-                    DOMElements.withdrawAmountInput.value = '';
-                } catch (e) {
-                    console.error("Withdrawal error:", e);
-                    showMessage('Request failed.', true);
-                }
-            });
+            DOMElements.submitWithdrawalBtn.addEventListener('click', async () => { const levelInfo = INVESTMENT_LEVELS[currentUserData.investmentLevel || 'None']; const amount = parseFloat(DOMElements.withdrawAmountInput.value); if (isNaN(amount) || amount <= 0) { showMessage('Invalid amount.', true); return; } if (amount > currentUserData.totalAssets) { showMessage('Insufficient funds.', true); return; } if (amount < levelInfo.minWithdraw) { showMessage(`Minimum withdrawal for your level is Ksh ${levelInfo.minWithdraw}.`, true); return; } try { await addDoc(collection(db, 'admin_notifications'), { userId: auth.currentUser.uid, username: currentUserData.username, type: 'withdrawal_request', amount: amount, timestamp: serverTimestamp() }); await updateDoc(doc(db, "users", auth.currentUser.uid), { totalAssets: increment(-amount) }); await addDoc(collection(db, "transactions"), { userId: auth.currentUser.uid, amount: amount, type: 'withdrawal', timestamp: serverTimestamp() }); showMessage('Withdrawal request sent!'); DOMElements.withdrawModal.classList.add('hidden'); DOMElements.withdrawAmountInput.value = ''; } catch (e) { showMessage('Request failed.', true); } });
             
             DOMElements.navItems.forEach(item => item.addEventListener('click', () => switchPage(item.dataset.page)));
 
             // --- Auth State Change Handler ---
-            onAuthStateChanged(auth, user => {
-                if (user) {
-                    DOMElements.authContainer.style.display = 'none';
-                    DOMElements.appContainer.style.display = 'flex';
-                    listenToUserData(user);
-                    listenForAdminNotifications(user.uid); // **FIXED**: Now listens for admin messages.
-                    switchPage('home');
-                } else {
-                    DOMElements.authContainer.style.display = 'flex';
-                    DOMElements.appContainer.style.display = 'none';
-                    if (unsubscribeUser) unsubscribeUser();
-                    currentUserData = null;
-                }
-            });
+            onAuthStateChanged(auth, user => { if (user) { DOMElements.authContainer.style.display = 'none'; DOMElements.appContainer.style.display = 'flex'; listenToUserData(user); switchPage('home'); } else { DOMElements.authContainer.style.display = 'flex'; DOMElements.appContainer.style.display = 'none'; if (unsubscribeUser) unsubscribeUser(); currentUserData = null; } });
             switchAuthTab('login');
         });
     </script>
