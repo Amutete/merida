@@ -326,21 +326,51 @@
                 const requestRef = doc(db, `${type}s`, requestId);
                 batch.update(requestRef, { status: status, processedAt: serverTimestamp() });
                 const userRef = doc(db, 'users', userId);
+                
+                // Define a new reference for the notification
+                const notificationRef = doc(collection(db, 'notifications'));
 
                 if (status === 'approved' && type === 'deposit') {
                     batch.update(userRef, { totalAssets: increment(amount) });
                     const transRef = doc(collection(db, `users/${userId}/transactions`));
                     batch.set(transRef, { type: 'deposit', amount, status: 'completed', timestamp: serverTimestamp(), description: 'Deposit approved by admin' });
-                } else if (status === 'approved' && type === 'withdrawal') {
+                } 
+                else if (status === 'approved' && type === 'withdrawal') {
                     batch.update(userRef, { pendingWithdrawalsAmount: increment(-amount) });
                     const transRef = doc(collection(db, `users/${userId}/transactions`));
                     batch.set(transRef, { type: 'withdrawal', amount, status: 'completed', timestamp: serverTimestamp(), description: 'Withdrawal approved by admin' });
-                } else if (status === 'rejected' && type === 'withdrawal') {
+                    
+                    // Add a notification for the approved withdrawal to the batch
+                    batch.set(notificationRef, {
+                        userId: userId,
+                        title: '✅ Withdrawal Approved',
+                        message: `Your withdrawal request for Ksh ${amount.toFixed(2)} has been approved and processed.`,
+                        read: false,
+                        timestamp: serverTimestamp()
+                    });
+                } 
+                else if (status === 'rejected' && type === 'withdrawal') {
+                    // Return the funds to the user's main balance
                     batch.update(userRef, { totalAssets: increment(amount), pendingWithdrawalsAmount: increment(-amount) });
+
+                    // Add a notification for the rejected withdrawal to the batch
+                    batch.set(notificationRef, {
+                        userId: userId,
+                        title: '❌ Withdrawal Rejected',
+                        message: `Your withdrawal request for Ksh ${amount.toFixed(2)} was rejected. The funds have been returned to your account balance.`,
+                        read: false,
+                        timestamp: serverTimestamp()
+                    });
                 }
 
-                try { await batch.commit(); showMessage(`${type} request ${status} successfully!`); } 
-                catch (error) { showMessage(`Error processing request.`, 'error'); console.error(error); }
+                try { 
+                    await batch.commit(); 
+                    showMessage(`${type} request ${status} successfully!`); 
+                } 
+                catch (error) { 
+                    showMessage(`Error processing request.`, 'error'); 
+                    console.error(error); 
+                }
             };
 
             const handleManageDetails = async (userId) => {
