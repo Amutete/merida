@@ -3,194 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MERIDA - Investment App</title>
+    <title>MERIDA - Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        .merida-logo-text { font-weight: 900; letter-spacing: -0.05em; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
-        .nav-item.active { color: #3b82f6; } /* blue-500 */
-        .btn-disabled { background-color: #d1d5db; cursor: not-allowed; }
-        
-        /* Notification badge style */
-        .notification-badge {
-            position: absolute;
-            top: -5px;
-            right: -8px;
-            min-width: 20px;
-            height: 20px;
-            background-color: #ef4444; /* red-500 */
-            color: white;
-            border-radius: 50%;
-            border: 2px solid white;
-            font-size: 12px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2px;
-        }
-
-        /* Blinking animation for new notifications */
-        @keyframes blink {
-            50% { opacity: 0.6; transform: scale(1.1); }
-        }
-        .animate-blink {
-            animation: blink 1.5s infinite;
-        }
+        body { font-family: 'Inter', sans-serif; }
+        .sidebar-link { display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.5rem; transition: background-color 0.2s; cursor: pointer; }
+        .sidebar-link:hover, .sidebar-link.active { background-color: #3b82f6; } /* Merida Blue for active/hover */
+        .sidebar-link .fa-fw { width: 1.25em; text-align: center; margin-right: 0.75rem; }
+        .content-section { display: none; }
+        .content-section.active { display: block; }
+        .stat-card { background-color: white; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
+        .notification-badge { position: absolute; top: 0.5rem; right: 0.5rem; background-color: #ef4444; /* Red for notifications */ color: white; border-radius: 9999px; font-size: 0.75rem; font-weight: bold; width: 1.5rem; height: 1.5rem; display: flex; align-items: center; justify-content: center; }
+        .styled-input { background-color: #f3f4f6; border: 2px solid #d1d5db; padding: 0.75rem; border-radius: 0.5rem; transition: all 0.2s; color: #1f2937; }
+        .styled-input:focus { border-color: #3b82f6; background-color: white; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3); }
     </style>
 </head>
-<body class="bg-slate-100">
+<body class="bg-gray-100">
 
-    <div id="auth-container" style="display: none;" class="min-h-screen bg-gradient-to-br from-blue-500 to-blue-700 flex flex-col items-center justify-center p-4">
-        <h1 class="text-7xl font-black text-white merida-logo-text mb-6">MERIDA</h1>
-        <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-6">
-            <div class="flex border-b border-gray-200">
-                <button id="login-tab-btn" class="flex-1 py-3 font-semibold text-lg border-b-4 border-blue-500 text-blue-500">Login</button>
-                <button id="signup-tab-btn" class="flex-1 py-3 font-semibold text-lg text-gray-500">Sign Up</button>
-            </div>
-            <div id="error-message" class="mt-4 text-center text-red-500 font-medium h-5"></div>
-            <div class="mt-6">
-                <form id="login-form">
-                    <div class="mb-4"><label for="login-email" class="block text-sm font-medium text-gray-700">Email</label><input type="email" id="login-email" required class="mt-1 block w-full px-3 py-2 bg-slate-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></div>
-                    <div class="mb-6"><label for="login-password" class="block text-sm font-medium text-gray-700">Password</label><input type="password" id="login-password" required class="mt-1 block w-full px-3 py-2 bg-slate-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></div>
-                    <button type="submit" class="w-full bg-blue-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-600 transition duration-300 shadow-lg">Login</button>
-                </form>
-                <form id="signup-form" class="hidden">
-                    <div class="mb-4"><label for="signup-username" class="block text-sm font-medium text-gray-700">Username</label><input type="text" id="signup-username" required class="mt-1 block w-full px-3 py-2 bg-slate-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></div>
-                    <div class="mb-4"><label for="signup-email" class="block text-sm font-medium text-gray-700">Email</label><input type="email" id="signup-email" required class="mt-1 block w-full px-3 py-2 bg-slate-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></div>
-                    <div class="mb-4"><label for="signup-password" class="block text-sm font-medium text-gray-700">Password</label><input type="password" id="signup-password" required class="mt-1 block w-full px-3 py-2 bg-slate-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></div>
-                    <div class="mb-6"><label for="signup-confirm-password" class="block text-sm font-medium text-gray-700">Confirm Password</label><input type="password" id="signup-confirm-password" required class="mt-1 block w-full px-3 py-2 bg-slate-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></div>
-                    <button type="submit" class="w-full bg-blue-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-600 transition duration-300 shadow-lg">Create Account</button>
-                </form>
-            </div>
+    <div id="admin-login-container" class="min-h-screen flex items-center justify-center bg-gray-200 p-4">
+        <div class="w-full max-w-sm bg-white rounded-2xl shadow-xl p-8">
+            <h1 class="text-3xl font-bold text-center text-blue-500 mb-6">MERIDA Admin Login</h1>
+            <div id="admin-error-message" class="mb-4 text-center text-red-500 font-medium h-5"></div>
+            <form id="admin-login-form">
+                <div class="mb-4"><label for="admin-email" class="block text-sm font-medium text-gray-700">Admin Email</label><input type="email" id="admin-email" required class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></div>
+                <div class="mb-6"><label for="admin-password" class="block text-sm font-medium text-gray-700">Admin Password</label><input type="password" id="admin-password" required class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></div>
+                <button type="submit" class="w-full bg-blue-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-600 transition duration-300 shadow-lg">Login</button>
+            </form>
         </div>
     </div>
 
-    <div id="app-container" class="hidden w-full max-w-lg mx-auto bg-slate-200 flex-col h-screen">
-        <header class="bg-blue-600 text-white p-4 shadow-lg flex justify-between items-center z-10 sticky top-0">
-             <div>
-                <p class="text-sm opacity-80">Welcome back,</p>
-                <h2 id="user-name-display" class="font-bold text-xl">User</h2>
-             </div>
-             <div class="flex items-center gap-5">
-                <div class="text-right">
-                    <p class="text-sm opacity-80">Total Assets</p>
-                    <h2 id="total-assets-display" class="font-bold text-xl">Ksh 0.00</h2>
+    <div id="admin-panel-container" class="hidden">
+        <div class="flex h-screen bg-gray-800 text-white">
+            <nav class="w-64 flex-shrink-0 bg-slate-900 p-4 flex flex-col justify-between">
+                <div>
+                    <h2 class="text-2xl font-bold text-center text-blue-500 mb-8 border-b border-gray-700 pb-4">MERIDA ADMIN</h2>
+                    <ul class="space-y-3">
+                        <li><div class="sidebar-link active" data-target="overview"><i class="fas fa-fw fa-tachometer-alt"></i>Overview</div></li>
+                        <li class="relative"><div class="sidebar-link" data-target="deposits"><i class="fas fa-fw fa-download"></i>Deposit Requests</div><div id="deposits-badge" class="notification-badge hidden">0</div></li>
+                        <li class="relative"><div class="sidebar-link" data-target="withdrawals"><i class="fas fa-fw fa-upload"></i>Withdrawal Requests</div><div id="withdrawals-badge" class="notification-badge hidden">0</div></li>
+                        <li><div class="sidebar-link" data-target="users"><i class="fas fa-fw fa-users"></i>Manage Users</div></li>
+                        <li><div class="sidebar-link" data-target="notifications"><i class="fas fa-fw fa-paper-plane"></i>Send Notifications</div></li>
+                    </ul>
                 </div>
-                <div id="header-notification-bell" class="relative cursor-pointer">
-                    <i class="fa-solid fa-bell text-2xl"></i>
-                    <div id="header-notification-count" class="notification-badge hidden">0</div>
-                </div>
-             </div>
-        </header>
+                <button id="admin-logout-btn" class="sidebar-link w-full text-red-400 hover:bg-red-800/50"><i class="fas fa-fw fa-sign-out-alt"></i>Logout</button>
+            </nav>
 
-        <main class="flex-grow p-4 overflow-y-auto pb-24">
-            <div id="page-home">
-                <h3 class="font-bold text-2xl text-slate-800 mb-4">Dashboard</h3>
-                 <div class="grid grid-cols-2 gap-4 text-center mb-6">
-                    <div id="deposit-btn" class="bg-white p-4 rounded-xl shadow-md cursor-pointer hover:bg-slate-50 transition"><i class="fa-solid fa-wallet text-blue-500 text-2xl"></i><p class="font-semibold text-sm mt-1 text-slate-700">Deposit</p></div>
-                    <div id="withdraw-btn" class="bg-white p-4 rounded-xl shadow-md cursor-pointer hover:bg-slate-50 transition"><i class="fa-solid fa-money-bill-transfer text-blue-500 text-2xl"></i><p class="font-semibold text-sm mt-1 text-slate-700">Withdraw</p></div>
+            <main class="flex-1 p-6 md:p-10 bg-gray-100 overflow-y-auto">
+                <header class="mb-8"><h1 id="page-title" class="text-4xl font-bold text-gray-800">Overview</h1></header>
+                
+                <div id="overview-section" class="content-section active">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="stat-card"><h3 class="text-gray-500 font-semibold">Total Users</h3><p id="total-users-stat" class="text-3xl font-bold text-gray-800">0</p></div>
+                        <div class="stat-card"><h3 class="text-gray-500 font-semibold">Total Platform Assets</h3><p id="total-assets-stat" class="text-3xl font-bold text-gray-800">Ksh 0.00</p></div>
+                        <div class="stat-card"><h3 class="text-gray-500 font-semibold">Pending Deposits</h3><p id="pending-deposits-stat" class="text-3xl font-bold text-blue-500">0</p></div>
+                        <div class="stat-card"><h3 class="text-gray-500 font-semibold">Pending Withdrawals</h3><p id="pending-withdrawals-stat" class="text-3xl font-bold text-blue-500">0</p></div>
+                    </div>
                 </div>
-                <div class="space-y-6">
-                     <div>
-                        <h4 class="font-bold text-xl text-slate-700 mb-3">Investment Levels</h4>
-                        <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                             <table class="min-w-full text-sm">
-                                <thead class="bg-slate-100">
-                                    <tr>
-                                         <th class="py-2 px-3 text-left font-semibold text-slate-600">Stake (Ksh)</th>
-                                        <th class="py-2 px-3 text-center font-semibold text-slate-600">Daily Income (Ksh)</th>
-                                         <th class="py-2 px-3 text-right font-semibold text-slate-600">Min. Withdraw (Ksh)</th>
-                                    </tr>
-                                </thead>
-                                 <tbody class="divide-y divide-slate-200 text-slate-800">
-                                    <tr><td class="py-3 px-3 font-medium">500</td><td class="py-3 px-3 text-center font-bold text-green-600">16</td><td class="py-3 px-3 text-right">200</td></tr>
-                                    <tr><td class="py-3 px-3 font-medium">1,000</td><td class="py-3 px-3 text-center font-bold text-green-600">33</td><td class="py-3 px-3 text-right">500</td></tr>
-                                     <tr><td class="py-3 px-3 font-medium">2,000</td><td class="py-3 px-3 text-center font-bold text-green-600">66</td><td class="py-3 px-3 text-right">500</td></tr>
-                                    <tr><td class="py-3 px-3 font-medium">3,000</td><td class="py-3 px-3 text-center font-bold text-green-600">100</td><td class="py-3 px-3 text-right">700</td></tr>
-                                     <tr><td class="py-3 px-3 font-medium">5,000</td><td class="py-3 px-3 text-center font-bold text-green-600">166</td><td class="py-3 px-3 text-right">1,000</td></tr>
-                                    <tr><td class="py-3 px-3 font-medium">10,000</td><td class="py-3 px-3 text-center font-bold text-green-600">330</td><td class="py-3 px-3 text-right">1,500</td></tr>
-                                   </tbody>
-                            </table>
+
+                <div id="deposits-section" class="content-section">
+                    <div id="deposits-list" class="space-y-4 bg-white p-4 rounded-lg shadow">
+                        <p class="text-gray-500 text-center p-4">Loading requests...</p>
+                    </div>
+                </div>
+                
+                <div id="withdrawals-section" class="content-section">
+                    <div id="withdrawals-list" class="space-y-4 bg-white p-4 rounded-lg shadow">
+                         <p class="text-gray-500 text-center p-4">Loading requests...</p>
+                    </div>
+                </div>
+                
+                <div id="users-section" class="content-section"><div id="users-list" class="space-y-4 bg-white p-4 rounded-lg shadow max-h-[75vh] overflow-y-auto"></div></div>
+                
+                <div id="notifications-section" class="content-section">
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">Send a Notification</h2>
+                        <div class="space-y-4">
+                            <div><label for="notification-user-input" class="block text-sm font-medium text-gray-700 mb-1">Target Username (Optional, Leave Blank for all)</label><input type="text" id="notification-user-input" placeholder="Enter Username" class="styled-input w-full"></div>
+                            <div><label for="notification-title" class="block text-sm font-medium text-gray-700 mb-1">Title</label><input type="text" id="notification-title" class="styled-input w-full"></div>
+                            <div><label for="notification-message" class="block text-sm font-medium text-gray-700 mb-1">Message</label><textarea id="notification-message" rows="4" class="styled-input w-full"></textarea></div>
+                            <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                                <button id="send-notification-btn" class="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600">Send Notification</button>
+                                <button id="send-welcome-btn" class="w-full bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600">Send Welcome</button>
+                                <button id="send-reminder-btn" class="w-full bg-yellow-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-yellow-600">Send 2nd Withdraw Rule</button>
+                            </div>
                         </div>
                     </div>
-                 </div>
-            </div>
-            <div id="page-work" class="hidden text-center">
-                 <h3 class="font-bold text-2xl text-slate-800 mb-6">Today's Task</h3>
-                 <div id="work-content" class="bg-white rounded-lg p-6 shadow-md min-h-[150px] flex items-center justify-center"></div>
-                 <div id="task-feedback" class="mt-4 text-green-600 font-semibold h-5"></div>
-            </div>
-            <div id="page-profit" class="hidden">
-                 <h3 class="font-bold text-2xl text-slate-800 mb-6">Profit Overview</h3>
-                 <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div class="bg-white p-4 rounded-xl shadow-md text-center">
-                        <p class="text-sm text-slate-600">Task Profits</p>
-                        <p id="task-profits-display" class="font-bold text-2xl text-slate-800 mt-1">Ksh 0.00</p>
-                    </div>
-                    <div class="bg-white p-4 rounded-xl shadow-md text-center">
-                        <p class="text-sm text-slate-600">Referral Bonuses</p>
-                        <p id="referral-bonuses-display" class="font-bold text-2xl text-slate-800 mt-1">Ksh 0.00</p>
-                    </div>
                 </div>
-                <h4 class="font-bold text-xl text-slate-700 mb-3">Transaction Log</h4>
-                <div id="transaction-log" class="space-y-3"></div>
-            </div>
-            <div id="page-my" class="hidden">
-                 <h3 class="font-bold text-2xl text-slate-800 mb-6">My Profile</h3>
-                <div class="bg-white p-4 rounded-lg shadow-md mb-6"><h4 class="font-bold text-lg text-slate-700 mb-3">Personal Details</h4><div class="space-y-2 text-sm"><p><span class="font-semibold">Username:</span> <span id="my-username"></span></p><p><span class="font-semibold">Email:</span> <span id="my-email"></span></p><p><span class="font-semibold">User ID:</span> <span id="my-userid" class="text-xs text-slate-500"></span></p></div></div>
-                <div class="bg-white p-4 rounded-lg shadow-md mb-6"><h4 class="font-bold text-lg text-slate-700 mb-3">My Referral Link</h4><div class="bg-slate-100 p-2 rounded-md flex items-center justify-between"><input id="referral-link-input" type="text" readonly value="Loading..." class="bg-transparent text-slate-600 text-xs w-full focus:outline-none"><button id="copy-referral-btn" class="bg-blue-500 text-white px-3 py-1 rounded text-sm font-semibold">Copy</button></div></div>
-                <div class="bg-white p-4 rounded-lg shadow-md mb-6"><h4 class="font-bold text-lg text-slate-700 mb-3">My Team</h4><div id="my-team-list" class="space-y-2"></div></div>
-                <button id="logout-btn" class="w-full bg-red-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-600 transition duration-300 shadow-lg">Logout</button>
-            </div>
-        </main>
-
-        <footer class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex justify-around max-w-lg mx-auto">
-             <button data-page="home" class="nav-item flex-1 py-3 text-center text-slate-600 hover:bg-slate-100 transition active"><i class="fas fa-home text-xl"></i><span class="block text-xs font-medium">Home</span></button>
-             <button data-page="work" class="nav-item flex-1 py-3 text-center text-slate-600 hover:bg-slate-100 transition"><i class="fas fa-briefcase text-xl"></i><span class="block text-xs font-medium">Work</span></button>
-             <button data-page="profit" class="nav-item flex-1 py-3 text-center text-slate-600 hover:bg-slate-100 transition"><i class="fas fa-chart-line text-xl"></i><span class="block text-xs font-medium">Profit</span></button>
-             <button data-page="my" class="nav-item flex-1 py-3 text-center text-slate-600 hover:bg-slate-100 transition"><i class="fas fa-user text-xl"></i><span class="block text-xs font-medium">My</span></button>
-        </footer>
+            </main>
+        </div>
     </div>
     
-    <div id="deposit-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-40 p-4">
-        <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
-            <div id="deposit-step-1">
-                <h3 class="font-bold text-xl mb-4 text-center">Deposit Instructions</h3>
-                <p class="text-slate-600 mb-2 text-center">Send your investment via M-Pesa to:</p>
-                <div class="bg-slate-100 p-3 rounded-lg text-center my-4">
-                    <p class="text-2xl font-bold text-orange-500 tracking-wider">0745 875 920</p>
+    <div id="user-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-40 p-4">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg text-gray-800">
+            <h3 class="font-bold text-xl mb-4" id="modal-username">Manage User Details</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Set/Update Investment Level</label>
+                    <select id="modal-level-select" class="mt-1 block w-full px-3 py-2 bg-slate-50 border rounded-md styled-input"></select>
                 </div>
-                <p class="text-slate-500 text-sm text-center mb-4">After sending the exact investment amount, click below to confirm.</p>
-                <button id="deposit-paid-btn" class="w-full bg-green-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-600 transition duration-300 shadow-lg mb-2">I Have Paid</button>
-                <button id="close-deposit-modal-btn" class="text-slate-500 font-semibold w-full">Close</button>
             </div>
-            <div id="deposit-step-2" class="hidden">
-                <h3 class="font-bold text-xl mb-4 text-center">Confirm Your Payment</h3>
-                <p class="text-slate-600 mb-4 text-sm text-center">Enter the details from the M-Pesa confirmation message you received.</p>
-                <div class="space-y-4">
-                    <div><label for="deposit-mpesa-name" class="block text-sm font-medium text-gray-700">M-Pesa Name</label><input type="text" id="deposit-mpesa-name" placeholder="e.g. John Doe" class="mt-1 block w-full px-3 py-2 bg-slate-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></div>
-                    <div><label for="deposit-mpesa-phone" class="block text-sm font-medium text-gray-700">M-Pesa Phone Number</label><input type="text" id="deposit-mpesa-phone" placeholder="e.g. 0712345678" class="mt-1 block w-full px-3 py-2 bg-slate-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></div>
-                    <div><label for="deposit-amount" class="block text-sm font-medium text-gray-700">Amount Paid (Ksh)</label><input type="number" id="deposit-amount" placeholder="e.g., 500" class="mt-1 block w-full px-3 py-2 bg-slate-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></div>
-                </div>
-                <button id="submit-deposit-request-btn" class="mt-6 w-full bg-blue-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-600 transition duration-300 shadow-lg mb-2">Notify Admin</button>
-                <button id="deposit-back-btn" class="text-slate-500 font-semibold w-full">Back</button>
+            <div class="mt-6 flex justify-end space-x-3">
+                <button id="close-user-modal-btn" class="bg-slate-200 text-slate-700 font-bold py-2 px-4 rounded-lg hover:bg-slate-300">Close</button>
+                <button id="update-user-btn" class="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600">Update User</button>
             </div>
         </div>
     </div>
-
-    <div id="withdraw-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-40 p-4"><div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm text-center"><h3 class="font-bold text-xl mb-3">Request Withdrawal</h3><p class="text-slate-600 mb-4">Enter amount to withdraw. Minimum depends on your level.</p><input type="number" id="withdraw-amount" placeholder="Ksh 0.00" class="w-full text-center px-3 py-2 text-lg font-bold bg-slate-50 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"><button id="submit-withdrawal-btn" class="mt-4 w-full bg-blue-500 text-white font-bold py-3 rounded-lg hover:bg-blue-600 shadow-lg transition">Submit Request</button><button id="cancel-withdraw-modal-btn" class="mt-3 text-slate-500 font-semibold">Cancel</button></div></div>
     
-    <div id="notifications-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-40 p-4">
-        <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm flex flex-col max-h-[80vh]">
-            <h3 class="font-bold text-xl mb-4 text-center border-b pb-3">My Inbox</h3>
-            <div id="notifications-list" class="flex-grow overflow-y-auto space-y-3 pr-2">
-                </div>
-            <button id="close-notifications-modal-btn" class="mt-4 w-full bg-slate-200 text-slate-700 font-bold py-2 px-4 rounded-lg hover:bg-slate-300">Close</button>
+    <div id="asset-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-40 p-4">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg text-gray-800">
+            <h3 class="font-bold text-xl mb-4" id="asset-modal-username">Manage Assets</h3>
+            <div class="space-y-4">
+                <div><label class="block text-sm font-medium text-gray-700">Edit User's Total Assets (Ksh)</label><input type="number" id="modal-total-assets" class="mt-1 block w-full styled-input"></div>
+            </div>
+            <div class="mt-6 flex justify-end space-x-3"><button id="close-asset-modal-btn" class="bg-slate-200 text-slate-700 font-bold py-2 px-4 rounded-lg hover:bg-slate-300">Close</button><button id="update-assets-btn" class="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600">Update Assets</button></div>
+        </div>
+    </div>
+    
+    <div id="report-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+        <div class="bg-gray-50 rounded-xl shadow-2xl p-6 w-full max-w-4xl text-gray-800 max-h-[95vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4 border-b pb-3">
+                <h3 class="font-bold text-2xl" id="report-modal-username">User Report</h3>
+                <button id="close-report-modal-btn" class="text-gray-400 hover:text-red-500 text-3xl leading-none">&times;</button>
+            </div>
+            <div id="report-content" class="overflow-y-auto space-y-6 p-2"></div>
         </div>
     </div>
 
@@ -198,11 +135,11 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, increment, collection, addDoc, query, where, getDocs, serverTimestamp, orderBy, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, updateDoc, onSnapshot, query, orderBy, getDocs, deleteDoc, increment, addDoc, serverTimestamp, writeBatch, where, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
         document.addEventListener("DOMContentLoaded", () => {
-            // --- Firebase and App Configuration ---
+            // --- Firebase and App Config ---
             const firebaseConfig = {
                 apiKey: "AIzaSyB8Ni8HRr5lbtvD3WDcly9xTAdAl2OKNNQ",
                 authDomain: "merida-47818.firebaseapp.com",
@@ -212,124 +149,307 @@
                 appId: "1:606896191722:web:bf309888bd1cfbb6123f93",
                 measurementId: "G-SPSG3DYMY7"
             };
+            const ADMIN_EMAIL = 'cleophasamutete@gmail.com';
+
             const INVESTMENT_LEVELS = {
-                'level-1': { name: 'Level 1 (Ksh 500)', investment: 500, dailyIncome: 16, minWithdraw: 200 },
-                'level-2': { name: 'Level 2 (Ksh 1,000)', investment: 1000, dailyIncome: 33, minWithdraw: 500  },
-                'level-3': { name: 'Level 3 (Ksh 2,000)', investment: 2000, dailyIncome: 66, minWithdraw: 500 },
-                'level-4': { name: 'Level 3 (Ksh 3,000)', investment: 3000, dailyIncome: 100, minWithdraw: 700 },
-                'level-5': { name: 'Level 5 (Ksh 5,000)', investment: 5000, dailyIncome: 166, minWithdraw: 1000 },
-                'level-6': { name: 'Level 6 (Ksh 10,000)', investment: 10000, dailyIncome: 330, minWithdraw: 1500 },
-                'None': { name: 'No Level', investment: 0, dailyIncome: 0, minWithdraw: Infinity }
+                'level-0': { name: 'Level 0 Locked Account', investment: 0 },
+                'level-1': { name: 'Level 1 - Ksh 500', investment: 500 },
+                'level-2': { name: 'Level 2 - Ksh 1000', investment: 1000 },
+                'level-3': { name: 'Level 3 - Ksh 2000', investment: 2000 },
+                'level-4': { name: 'Level 4 - Ksh 3000', investment: 3000 },
+                'level-5': { name: 'Level 5 - Ksh 5000', investment: 5000 },
+                'level-6': { name: 'Level 6 - Ksh 10000', investment: 10000 },
+                'None': { name: 'None', investment: 0 }
             };
 
-            let app, auth, db, currentUserData = null, unsubscribeUser = null, unsubscribeNotifications = null, taskTimerInterval = null, taskTimerEndTime = null;
-            try { app = initializeApp(firebaseConfig); auth = getAuth(app); db = getFirestore(app); } catch (e) { console.error("Firebase init failed:", e); alert("Cannot connect to server."); return; }
-            
-            // --- DOM Element Cache ---
+            let app, auth, db, selectedUserId = null;
+            try { app = initializeApp(firebaseConfig); auth = getAuth(app); db = getFirestore(app); } catch (e) { console.error("Firebase init failed:", e); }
+
+            // --- DOM Elements ---
             const DOMElements = {
-                authContainer: document.getElementById('auth-container'), appContainer: document.getElementById('app-container'), errorMessage: document.getElementById('error-message'), loginTabBtn: document.getElementById('login-tab-btn'), signupTabBtn: document.getElementById('signup-tab-btn'), loginForm: document.getElementById('login-form'), signupForm: document.getElementById('signup-form'), logoutBtn: document.getElementById('logout-btn'), navItems: document.querySelectorAll('.nav-item'), pages: { home: document.getElementById('page-home'), work: document.getElementById('page-work'), profit: document.getElementById('page-profit'), my: document.getElementById('page-my') }, userNameDisplay: document.getElementById('user-name-display'), totalAssetsDisplay: document.getElementById('total-assets-display'), myUsername: document.getElementById('my-username'), myEmail: document.getElementById('my-email'), myUserid: document.getElementById('my-userid'), referralLinkInput: document.getElementById('referral-link-input'), copyReferralBtn: document.getElementById('copy-referral-btn'), workContent: document.getElementById('work-content'), taskFeedback: document.getElementById('task-feedback'), transactionLog: document.getElementById('transaction-log'), myTeamList: document.getElementById('my-team-list'), messageModal: document.getElementById('message-modal'), messageModalText: document.getElementById('message-modal-text'),
-                taskProfitsDisplay: document.getElementById('task-profits-display'), referralBonusesDisplay: document.getElementById('referral-bonuses-display'),
-                // Deposit Modal
-                depositBtn: document.getElementById('deposit-btn'), depositModal: document.getElementById('deposit-modal'), closeDepositModalBtn: document.getElementById('close-deposit-modal-btn'), depositStep1: document.getElementById('deposit-step-1'), depositStep2: document.getElementById('deposit-step-2'), depositPaidBtn: document.getElementById('deposit-paid-btn'), depositBackBtn: document.getElementById('deposit-back-btn'), submitDepositRequestBtn: document.getElementById('submit-deposit-request-btn'), depositAmountInput: document.getElementById('deposit-amount'), depositMpesaNameInput: document.getElementById('deposit-mpesa-name'), depositMpesaPhoneInput: document.getElementById('deposit-mpesa-phone'),
-                // Withdraw Modal
-                withdrawBtn: document.getElementById('withdraw-btn'), withdrawModal: document.getElementById('withdraw-modal'), cancelWithdrawModalBtn: document.getElementById('cancel-withdraw-modal-btn'), submitWithdrawalBtn: document.getElementById('submit-withdrawal-btn'), withdrawAmountInput: document.getElementById('withdraw-amount'),
-                // Notifications
-                headerNotificationBell: document.getElementById('header-notification-bell'), headerNotificationCount: document.getElementById('header-notification-count'), notificationsModal: document.getElementById('notifications-modal'), notificationsList: document.getElementById('notifications-list'), closeNotificationsModalBtn: document.getElementById('close-notifications-modal-btn'),
+                loginContainer: document.getElementById('admin-login-container'), panelContainer: document.getElementById('admin-panel-container'), loginForm: document.getElementById('admin-login-form'), errorMessage: document.getElementById('admin-error-message'), logoutBtn: document.getElementById('admin-logout-btn'),
+                navItems: document.querySelectorAll('.sidebar-link'), pageTitle: document.getElementById('page-title'),
+                statTotalUsers: document.getElementById('total-users-stat'), statTotalAssets: document.getElementById('total-assets-stat'), statPendingDeposits: document.getElementById('pending-deposits-stat'), statPendingWithdrawals: document.getElementById('pending-withdrawals-stat'),
+                depositsBadge: document.getElementById('deposits-badge'), withdrawalsBadge: document.getElementById('withdrawals-badge'),
+                depositsList: document.getElementById('deposits-list'), withdrawalsList: document.getElementById('withdrawals-list'), usersList: document.getElementById('users-list'),
+                userModal: document.getElementById('user-modal'), modalUsername: document.getElementById('modal-username'), modalLevelSelect: document.getElementById('modal-level-select'), updateUserBtn: document.getElementById('update-user-btn'), closeUserModalBtn: document.getElementById('close-user-modal-btn'),
+                assetModal: document.getElementById('asset-modal'), assetModalUsername: document.getElementById('asset-modal-username'), modalTotalAssets: document.getElementById('modal-total-assets'), updateAssetsBtn: document.getElementById('update-assets-btn'), closeAssetModalBtn: document.getElementById('close-asset-modal-btn'),
+                reportModal: document.getElementById('report-modal'), reportModalUsername: document.getElementById('report-modal-username'), reportContent: document.getElementById('report-content'), closeReportModalBtn: document.getElementById('close-report-modal-btn'),
+                messageModal: document.getElementById('message-modal'), messageModalText: document.getElementById('message-modal-text'),
+                notificationUserInput: document.getElementById('notification-user-input'), notificationTitle: document.getElementById('notification-title'), notificationMessage: document.getElementById('notification-message'),
+                sendNotificationBtn: document.getElementById('send-notification-btn'), sendWelcomeBtn: document.getElementById('send-welcome-btn'), sendReminderBtn: document.getElementById('send-reminder-btn'),
             };
 
-            // --- UI & Utility Functions ---
-            const showMessage = (text, isError = false) => { DOMElements.messageModalText.textContent = text; DOMElements.messageModal.classList.toggle('bg-red-500', isError); DOMElements.messageModal.classList.toggle('bg-green-500', !isError); DOMElements.messageModal.classList.remove('hidden'); setTimeout(() => { DOMElements.messageModal.classList.add('hidden'), 3500 }); };
-            const switchAuthTab = (tab) => { DOMElements.errorMessage.textContent = ''; const isLogin = tab === 'login'; DOMElements.loginTabBtn.classList.toggle('border-blue-500', isLogin); DOMElements.loginTabBtn.classList.toggle('text-blue-500', isLogin); DOMElements.loginTabBtn.classList.toggle('text-gray-500', !isLogin); DOMElements.signupTabBtn.classList.toggle('border-blue-500', !isLogin); DOMElements.signupTabBtn.classList.toggle('text-blue-500', !isLogin); DOMElements.signupTabBtn.classList.toggle('text-gray-500', isLogin); DOMElements.loginForm.classList.toggle('hidden', !isLogin); DOMElements.signupForm.classList.toggle('hidden', isLogin); };
-            const switchPage = (pageName) => { Object.values(DOMElements.pages).forEach(p => p.classList.add('hidden')); if(DOMElements.pages[pageName]) DOMElements.pages[pageName].classList.remove('hidden'); DOMElements.navItems.forEach(item => item.classList.toggle('active', item.dataset.page === pageName)); if (pageName === 'profit') renderProfitPage(); if (pageName === 'my') renderMyTeam(); };
+            // --- Utility Functions ---
+            const showMessage = (message, type = 'success') => { DOMElements.messageModalText.textContent = message; DOMElements.messageModal.className = `fixed top-5 right-5 py-2 px-4 rounded-lg shadow-xl z-50 animate-pulse ${type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white`; DOMElements.messageModal.classList.remove('hidden'); setTimeout(() => { DOMElements.messageModal.classList.add('hidden'); }, 3000); };
+            const toggleModal = (modalElement, show) => modalElement.classList.toggle('hidden', !show);
+            const formatKsh = (amount) => `Ksh ${parseFloat(amount || 0).toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-            // --- Firestore & User Data Functions ---
-            const createUserProfile = async (user, username) => {
-                const userRef = doc(db, "users", user.uid);
-                const urlParams = new URLSearchParams(window.location.search);
-                const referrerId = urlParams.get('ref') || null;
-                let referredByUsername = null;
-                if (referrerId) {
-                    const referrerSnap = await getDoc(doc(db, "users", referrerId));
-                    if (referrerSnap.exists()) {
-                        referredByUsername = referrerSnap.data().username;
-                    }
+            // --- Firebase Auth & State Management ---
+            onAuthStateChanged(auth, (user) => {
+                if (user && user.email === ADMIN_EMAIL) {
+                    DOMElements.loginContainer.classList.add('hidden'); DOMElements.panelContainer.classList.remove('hidden');
+                    initializeAdminPanel();
+                } else {
+                    DOMElements.loginContainer.classList.remove('hidden'); DOMElements.panelContainer.classList.add('hidden');
                 }
-                await setDoc(userRef, {
-                    uid: user.uid,
-                    username,
-                    email: user.email,
-                    createdAt: serverTimestamp(),
-                    investmentLevel: 'None',
-                    totalAssets: 0,
-                    totalTaskProfits: 0,
-                    totalReferralBonuses: 0,
-                    pendingWithdrawalsAmount: 0, // <-- FIX: Field initialized
-                    referredBy: referrerId,
-                    referredByUsername: referredByUsername,
-                    lastResetDate: new Date().toISOString().split('T')[0],
-                    tasksCompletedToday: 0
+            });
+
+            DOMElements.loginForm.addEventListener('submit', async (e) => { e.preventDefault(); const email = DOMElements.loginForm['admin-email'].value; const password = DOMElements.loginForm['admin-password'].value; DOMElements.errorMessage.textContent = ''; try { await signInWithEmailAndPassword(auth, email, password); } catch (error) { DOMElements.errorMessage.textContent = 'Invalid login credentials.'; } });
+            DOMElements.logoutBtn.addEventListener('click', async () => { await signOut(auth); });
+
+            // --- Admin Panel Initialization ---
+            const initializeAdminPanel = () => {
+                setupInvestmentLevels();
+                setupRealtimeListeners();
+            };
+
+            const setupInvestmentLevels = () => { DOMElements.modalLevelSelect.innerHTML = Object.keys(INVESTMENT_LEVELS).map(key => `<option value="${key}">${INVESTMENT_LEVELS[key].name}</option>`).join(''); };
+
+            const setupRealtimeListeners = () => {
+                // Overview Stats Listener
+                onSnapshot(collection(db, 'users'), (snapshot) => {
+                    DOMElements.statTotalUsers.textContent = snapshot.size;
+                    let totalAssets = 0;
+                    snapshot.docs.forEach(doc => { totalAssets += (doc.data().totalAssets || 0); });
+                    DOMElements.statTotalAssets.textContent = formatKsh(totalAssets);
+                    renderUsers(snapshot.docs);
+                });
+
+                // Deposits Listener
+                const depositsQuery = query(collection(db, 'deposits'), where('status', '==', 'pending'), orderBy('timestamp', 'desc'));
+                onSnapshot(depositsQuery, (snapshot) => {
+                    DOMElements.depositsBadge.textContent = snapshot.size;
+                    DOMElements.depositsBadge.classList.toggle('hidden', snapshot.empty);
+                    DOMElements.statPendingDeposits.textContent = snapshot.size;
+                    renderRequests(snapshot.docs, DOMElements.depositsList, 'deposit');
+                });
+
+                // Withdrawals Listener
+                const withdrawalsQuery = query(collection(db, 'withdrawals'), where('status', '==', 'pending'), orderBy('timestamp', 'desc'));
+                onSnapshot(withdrawalsQuery, (snapshot) => {
+                    DOMElements.withdrawalsBadge.textContent = snapshot.size;
+                    DOMElements.withdrawalsBadge.classList.toggle('hidden', snapshot.empty);
+                    DOMElements.statPendingWithdrawals.textContent = snapshot.size;
+                    renderRequests(snapshot.docs, DOMElements.withdrawalsList, 'withdrawal');
                 });
             };
-            const listenToUserData = (user) => { if (unsubscribeUser) unsubscribeUser(); const userRef = doc(db, "users", user.uid); unsubscribeUser = onSnapshot(userRef, (docSnap) => { if (docSnap.exists()) { currentUserData = { id: docSnap.id, ...docSnap.data() }; checkAndResetTasks(user.uid, currentUserData); updateUI(currentUserData); } }, e => console.error("Listen Error:", e)); };
-            const listenToNotifications = (user) => { if (unsubscribeNotifications) unsubscribeNotifications(); const q = query(collection(db, "notifications"), where("userId", "==", user.uid), orderBy("timestamp", "desc")); unsubscribeNotifications = onSnapshot(q, (snapshot) => { let unreadCount = 0; DOMElements.notificationsList.innerHTML = ''; if (snapshot.empty) { DOMElements.notificationsList.innerHTML = '<p class="text-slate-500 text-center text-sm p-4">You have no messages.</p>'; } snapshot.docs.forEach(docSnap => { const notification = docSnap.data(); if (!notification.read) { unreadCount++; } renderNotificationItem(docSnap.id, notification); }); DOMElements.headerNotificationCount.textContent = unreadCount; const hasUnread = unreadCount > 0; DOMElements.headerNotificationCount.classList.toggle('hidden', !hasUnread); DOMElements.headerNotificationCount.classList.toggle('animate-blink', hasUnread); }); };
-            const checkAndResetTasks = async (userId, userData) => { const today = new Date().toISOString().split('T')[0]; if (today !== userData.lastResetDate) { await updateDoc(doc(db, "users", userId), { tasksCompletedToday: 0, lastResetDate: today }); } };
-            const updateUI = (data) => { if (!data) return; DOMElements.userNameDisplay.textContent = data.username; DOMElements.totalAssetsDisplay.textContent = `Ksh ${data.totalAssets.toFixed(2)}`; DOMElements.myUsername.textContent = data.username; DOMElements.myEmail.textContent = data.email; DOMElements.myUserid.textContent = data.uid; DOMElements.referralLinkInput.value = `${window.location.origin}${window.location.pathname}?ref=${data.uid}`; renderWorkPage(data); };
-            
-            // --- Page Rendering Functions ---
-            const renderWorkPage = (data) => { const levelKey = data.investmentLevel || 'None'; const levelInfo = INVESTMENT_LEVELS[levelKey]; if (!levelInfo || levelKey === 'None') { DOMElements.workContent.innerHTML = `<p class="text-slate-600">Your account is not active. Please make a deposit and contact admin to activate a level.</p>`; return; } if (data.tasksCompletedToday >= 1) { DOMElements.workContent.innerHTML = `<p class="font-bold text-2xl text-green-500 my-4">Daily task completed!</p><p class="text-slate-600">Come back tomorrow for your next task.</p>`; return; } const remainingTimeMs = taskTimerEndTime ? taskTimerEndTime - Date.now() : 0; let buttonHTML; if (remainingTimeMs > 0) { const minutesLeft = Math.ceil(remainingTimeMs / (60 * 1000)); buttonHTML = `<button id="work-button" class="w-full btn-disabled text-white font-bold py-4 px-4 rounded-lg text-xl" disabled>Working... (${minutesLeft} min left)</button>`; } else if (taskTimerEndTime) { buttonHTML = `<button id="work-button" class="w-full bg-green-500 text-white font-bold py-4 px-4 rounded-lg hover:bg-green-600 shadow-lg text-xl">Complete Task</button>`; } else { buttonHTML = `<button id="work-button" class="w-full bg-blue-500 text-white font-bold py-4 px-4 rounded-lg hover:bg-blue-600 shadow-lg text-xl">Start Task</button>`; } DOMElements.workContent.innerHTML = `<p class="text-slate-600">Current Level: <span class="font-bold">${levelInfo.name}</span></p><p class="font-bold text-4xl text-blue-500 my-4">Task 1 of 1</p>${buttonHTML}`; document.getElementById('work-button')?.addEventListener('click', handleWorkButtonClick); };
-            const handleWorkButtonClick = () => { if (taskTimerEndTime && (taskTimerEndTime - Date.now()) > 0) return; if (taskTimerEndTime) completeTask(); else startTaskTimer(); };
-            const startTaskTimer = () => { taskTimerEndTime = Date.now() + 45 * 60 * 1000; renderWorkPage(currentUserData); taskTimerInterval = setInterval(() => { const timeLeft = taskTimerEndTime - Date.now(); if (timeLeft <= 0) { clearInterval(taskTimerInterval); taskTimerInterval = null; renderWorkPage(currentUserData); } else { const workButton = document.getElementById('work-button'); if (workButton) { const minutesLeft = Math.ceil(timeLeft / (60 * 1000)); workButton.textContent = `Working... (${minutesLeft} min left)`; } } }, 10000); };
-            const completeTask = async () => { taskTimerEndTime = null; const levelInfo = INVESTMENT_LEVELS[currentUserData.investmentLevel]; const earnings = levelInfo.dailyIncome; const userRef = doc(db, "users", auth.currentUser.uid); try { const batch = writeBatch(db); batch.update(userRef, { totalAssets: increment(earnings), tasksCompletedToday: increment(1), totalTaskProfits: increment(earnings) }); const transRef = doc(collection(db, `users/${auth.currentUser.uid}/transactions`)); batch.set(transRef, { userId: auth.currentUser.uid, amount: earnings, type: 'task_profit', timestamp: serverTimestamp(), description: 'Daily task earnings' }); await batch.commit(); DOMElements.taskFeedback.textContent = `Task completed! +Ksh ${earnings.toFixed(2)} added.`; setTimeout(() => DOMElements.taskFeedback.textContent = '', 3000); } catch (e) { showMessage("Error completing task.", true); } };
-            const renderProfitPage = async () => { DOMElements.taskProfitsDisplay.textContent = `Ksh ${(currentUserData.totalTaskProfits || 0).toFixed(2)}`; DOMElements.referralBonusesDisplay.textContent = `Ksh ${(currentUserData.totalReferralBonuses || 0).toFixed(2)}`; const q = query(collection(db, `users/${auth.currentUser.uid}/transactions`), orderBy("timestamp", "desc")); const querySnapshot = await getDocs(q); DOMElements.transactionLog.innerHTML = ''; if (querySnapshot.empty) { DOMElements.transactionLog.innerHTML = '<p class="text-slate-500 text-center">No transactions yet.</p>'; return; } querySnapshot.docs.forEach(docSnap => { const t = docSnap.data(); let title, amountText, amountColor; switch (t.type) { case 'task_profit': title = 'Task Profit'; amountText = `+ Ksh ${t.amount.toFixed(2)}`; amountColor = 'text-green-600'; break; case 'deposit': title = 'Deposit'; amountText = `+ Ksh ${t.amount.toFixed(2)}`; amountColor = 'text-green-600'; break; case 'withdrawal': title = 'Withdrawal'; amountText = `- Ksh ${t.amount.toFixed(2)}`; amountColor = 'text-red-600'; break; case 'referral_bonus': title = `Referral Bonus`; amountText = `+ Ksh ${t.amount.toFixed(2)}`; amountColor = 'text-blue-600'; break; default: title = 'Transaction'; amountText = `Ksh ${t.amount.toFixed(2)}`; amountColor = 'text-slate-800'; }
-            DOMElements.transactionLog.innerHTML += `<div class="bg-white p-3 rounded-lg shadow-sm flex justify-between items-center"><div><p class="font-semibold text-slate-800">${title}</p><p class="text-xs text-slate-500">${t.timestamp.toDate().toLocaleString()}</p></div><p class="font-bold ${amountColor}">${amountText}</p></div>`; }); };
-            const renderMyTeam = async () => { const q = query(collection(db, "users"), where("referredBy", "==", auth.currentUser.uid)); const querySnapshot = await getDocs(q); DOMElements.myTeamList.innerHTML = ''; if (querySnapshot.empty) { DOMElements.myTeamList.innerHTML = '<p class="text-slate-500 text-center">No referrals yet.</p>'; return; } querySnapshot.forEach(docSnap => { const member = docSnap.data(); const status = member.investmentLevel === 'None' ? 'Registered' : 'Active'; DOMElements.myTeamList.innerHTML += `<div class="bg-slate-100 p-2 rounded-md flex justify-between items-center text-sm"><p class="font-semibold">${member.username}</p><p class="font-bold ${status === 'Active' ? 'text-green-500' : 'text-yellow-500'}">${status}</p></div>`; }); };
-            
-            // --- FIX: Corrected notification rendering and interaction ---
-            const renderNotificationItem = (id, notification) => {
-                const item = document.createElement('div');
-                item.className = `p-3 rounded-lg border ${notification.read ? 'bg-slate-50' : 'bg-blue-50 border-blue-200'} cursor-pointer`;
-                item.innerHTML = `<div class="flex justify-between items-start"><h4 class="font-bold text-slate-800">${notification.title}</h4><span class="text-xs text-slate-500">${notification.timestamp.toDate().toLocaleDateString()}</span></div><p class="text-sm text-slate-600 mt-1">${notification.message}</p>`;
-                item.onclick = async () => {
-                    if (!notification.read) {
-                        await updateDoc(doc(db, 'notifications', id), { read: true });
-                        // Visually update the item immediately without a reload
-                        item.className = 'p-3 rounded-lg border bg-slate-50 cursor-pointer';
-                        notification.read = true; // Prevents re-triggering
-                    }
-                };
-                DOMElements.notificationsList.appendChild(item);
+
+            // --- Rendering Functions ---
+            const renderRequests = (docs, listElement, type) => {
+                if (docs.length === 0) {
+                    listElement.innerHTML = `<p class="text-gray-500 text-center p-4">No new ${type} requests.</p>`;
+                    return;
+                }
+                listElement.innerHTML = docs.map(doc => {
+                    const data = doc.data();
+                    const details = type === 'deposit' ? `<p class="text-sm text-gray-500">From: ${data.mpesaName} (${data.mpesaPhone})</p>` : '';
+                    return `
+                        <div class="bg-gray-50 p-4 rounded-lg shadow-sm flex justify-between items-center">
+                            <div>
+                                <p class="font-semibold text-gray-800">${data.username} - ${formatKsh(data.amount)}</p>
+                                ${details}
+                                <p class="text-xs text-gray-400">${data.timestamp ? new Date(data.timestamp.toDate()).toLocaleString() : 'N/A'}</p>
+                            </div>
+                            <div class="space-x-2 flex-shrink-0">
+                                <button class="bg-green-500 text-white py-1 px-3 rounded text-sm approve-btn" data-id="${doc.id}" data-user-id="${data.userId}" data-amount="${data.amount}" data-type="${type}">Approve</button>
+                                <button class="bg-red-500 text-white py-1 px-3 rounded text-sm reject-btn" data-id="${doc.id}" data-user-id="${data.userId}" data-amount="${data.amount}" data-type="${type}">Reject</button>
+                            </div>
+                        </div>`;
+                }).join('');
+                addRequestEventListeners(listElement);
             };
 
-            // --- Event Listeners ---
-            DOMElements.loginTabBtn.addEventListener('click', () => switchAuthTab('login'));
-            DOMElements.signupTabBtn.addEventListener('click', () => switchAuthTab('signup'));
-            DOMElements.loginForm.addEventListener('submit', async (e) => { e.preventDefault(); DOMElements.errorMessage.textContent = ''; try { await signInWithEmailAndPassword(auth, DOMElements.loginForm['login-email'].value, DOMElements.loginForm['login-password'].value); } catch (e) { DOMElements.errorMessage.textContent = e.message.replace('Firebase: ', ''); } });
-            DOMElements.signupForm.addEventListener('submit', async (e) => { e.preventDefault(); DOMElements.errorMessage.textContent = ''; const pass = DOMElements.signupForm['signup-password'].value; if (pass !== DOMElements.signupForm['signup-confirm-password'].value) { DOMElements.errorMessage.textContent = "Passwords don't match."; return; } try { const cred = await createUserWithEmailAndPassword(auth, DOMElements.signupForm['signup-email'].value, pass); await createUserProfile(cred.user, DOMElements.signupForm['signup-username'].value); } catch (e) { DOMElements.errorMessage.textContent = e.message.replace('Firebase: ', ''); } });
-            DOMElements.logoutBtn.addEventListener('click', () => { signOut(auth); });
-            DOMElements.copyReferralBtn.addEventListener('click', () => { DOMElements.referralLinkInput.select(); document.execCommand('copy'); showMessage('Link copied!'); });
+            const renderUsers = (docs) => {
+                DOMElements.usersList.innerHTML = docs.map(doc => {
+                    const userData = doc.data();
+                    return `
+                        <div class="bg-gray-50 p-4 rounded-lg shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0">
+                            <div>
+                                <p class="font-semibold text-gray-800">${userData.username}</p>
+                                <p class="text-sm text-gray-600">Assets: ${formatKsh(userData.totalAssets)} | Level: ${INVESTMENT_LEVELS[userData.investmentLevel]?.name || 'N/A'}</p>
+                                <p class="text-xs text-gray-400">ID: ${doc.id}</p>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <button class="bg-blue-500 text-white py-1 px-3 rounded text-sm manage-details-btn" data-id="${doc.id}">Manage Details</button>
+                                <button class="bg-purple-500 text-white py-1 px-3 rounded text-sm manage-assets-btn" data-id="${doc.id}">Manage Assets</button>
+                                <button class="bg-indigo-500 text-white py-1 px-3 rounded text-sm view-report-btn" data-id="${doc.id}">View Report</button>
+                                <button class="bg-red-500 text-white py-1 px-3 rounded text-sm delete-user-btn" data-id="${doc.id}">Delete</button>
+                            </div>
+                        </div>`;
+                }).join('');
+                addUsersEventListeners();
+            };
+
+            // --- Event Listeners Setup ---
+            const addRequestEventListeners = (listElement) => {
+                listElement.querySelectorAll('.approve-btn, .reject-btn').forEach(button => {
+                    button.onclick = (e) => {
+                        const { id, userId, amount, type } = e.currentTarget.dataset;
+                        const status = e.currentTarget.classList.contains('approve-btn') ? 'approved' : 'rejected';
+                        handleRequestAction(id, userId, parseFloat(amount), type, status);
+                    };
+                });
+            };
+
+            const addUsersEventListeners = () => {
+                DOMElements.usersList.querySelectorAll('button').forEach(button => {
+                    button.onclick = (e) => {
+                        const { id } = e.currentTarget.dataset;
+                        if (button.classList.contains('manage-details-btn')) handleManageDetails(id);
+                        if (button.classList.contains('manage-assets-btn')) handleManageAssets(id);
+                        if (button.classList.contains('view-report-btn')) handleViewReport(id);
+                        if (button.classList.contains('delete-user-btn')) handleDeleteUser(id);
+                    };
+                });
+            };
+
+            DOMElements.closeUserModalBtn.addEventListener('click', () => toggleModal(DOMElements.userModal, false));
+            DOMElements.closeAssetModalBtn.addEventListener('click', () => toggleModal(DOMElements.assetModal, false));
+            DOMElements.closeReportModalBtn.addEventListener('click', () => toggleModal(DOMElements.reportModal, false));
             
-            // Deposit Modal Logic
-            DOMElements.depositBtn.addEventListener('click', () => { DOMElements.depositModal.classList.remove('hidden'); DOMElements.depositStep1.classList.remove('hidden'); DOMElements.depositStep2.classList.add('hidden'); });
-            DOMElements.closeDepositModalBtn.addEventListener('click', () => DOMElements.depositModal.classList.add('hidden'));
-            DOMElements.depositPaidBtn.addEventListener('click', () => { DOMElements.depositStep1.classList.add('hidden'); DOMElements.depositStep2.classList.remove('hidden'); });
-            DOMElements.depositBackBtn.addEventListener('click', () => { DOMElements.depositStep2.classList.add('hidden'); DOMElements.depositStep1.classList.remove('hidden'); });
-            DOMElements.submitDepositRequestBtn.addEventListener('click', async () => { const amount = parseFloat(DOMElements.depositAmountInput.value); const mpesaName = DOMElements.depositMpesaNameInput.value.trim(); const mpesaPhone = DOMElements.depositMpesaPhoneInput.value.trim(); if (isNaN(amount) || amount <= 0) { showMessage('Please enter a valid amount.', true); return; } if (!mpesaName || !mpesaPhone) { showMessage('Please fill out all M-Pesa details.', true); return; } try { await addDoc(collection(db, 'deposits'), { userId: auth.currentUser.uid, username: currentUserData.username, amount: amount, mpesaName: mpesaName, mpesaPhone: mpesaPhone, method: 'M-Pesa', status: 'pending', timestamp: serverTimestamp() }); showMessage('Deposit request submitted successfully!'); DOMElements.depositModal.classList.add('hidden'); DOMElements.depositAmountInput.value = ''; DOMElements.depositMpesaNameInput.value = ''; DOMElements.depositMpesaPhoneInput.value = ''; } catch (e) { showMessage('Request failed. Please try again.', true); console.error(e); } });
+            DOMElements.navItems.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = link.dataset.target;
+                    DOMElements.navItems.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                    document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+                    document.getElementById(`${targetId}-section`).classList.add('active');
+                    DOMElements.pageTitle.textContent = targetId.charAt(0).toUpperCase() + targetId.slice(1);
+                });
+            });
 
-            // Withdraw Modal Logic
-            DOMElements.withdrawBtn.addEventListener('click', () => { if (!currentUserData) return; const levelInfo = INVESTMENT_LEVELS[currentUserData.investmentLevel || 'None']; if (currentUserData.totalAssets < levelInfo.minWithdraw) { showMessage(`You need at least Ksh ${levelInfo.minWithdraw.toFixed(2)} to withdraw.`, true); return; } DOMElements.withdrawModal.classList.remove('hidden'); });
-            DOMElements.cancelWithdrawModalBtn.addEventListener('click', () => DOMElements.withdrawModal.classList.add('hidden'));
-            DOMElements.submitWithdrawalBtn.addEventListener('click', async () => { const levelInfo = INVESTMENT_LEVELS[currentUserData.investmentLevel || 'None']; const amount = parseFloat(DOMElements.withdrawAmountInput.value); if (isNaN(amount) || amount <= 0) { showMessage('Invalid amount.', true); return; } if (amount > currentUserData.totalAssets) { showMessage('Insufficient funds.', true); return; } if (amount < levelInfo.minWithdraw) { showMessage(`Minimum withdrawal is Ksh ${levelInfo.minWithdraw.toFixed(2)}.`, true); return; } try { const userRef = doc(db, "users", auth.currentUser.uid); const batch = writeBatch(db); batch.update(userRef, { totalAssets: increment(-amount), pendingWithdrawalsAmount: increment(amount) }); const withdrawRef = doc(collection(db, 'withdrawals')); batch.set(withdrawRef, { userId: auth.currentUser.uid, username: currentUserData.username, amount: amount, status: 'pending', timestamp: serverTimestamp() }); await batch.commit(); showMessage('Withdrawal request sent!'); DOMElements.withdrawModal.classList.add('hidden'); DOMElements.withdrawAmountInput.value = ''; } catch (e) { showMessage('Request failed.', true); console.error(e); } });
+            // --- Action Handlers ---
+            const handleRequestAction = async (requestId, userId, amount, type, status) => {
+                const batch = writeBatch(db);
+                const requestRef = doc(db, `${type}s`, requestId);
+                batch.update(requestRef, { status: status, processedAt: serverTimestamp() });
+                const userRef = doc(db, 'users', userId);
+
+                if (status === 'approved' && type === 'deposit') {
+                    batch.update(userRef, { totalAssets: increment(amount) });
+                    const transRef = doc(collection(db, `users/${userId}/transactions`));
+                    batch.set(transRef, { type: 'deposit', amount, status: 'completed', timestamp: serverTimestamp(), description: 'Deposit approved by admin' });
+                } else if (status === 'approved' && type === 'withdrawal') {
+                    batch.update(userRef, { pendingWithdrawalsAmount: increment(-amount) });
+                    const transRef = doc(collection(db, `users/${userId}/transactions`));
+                    batch.set(transRef, { type: 'withdrawal', amount, status: 'completed', timestamp: serverTimestamp(), description: 'Withdrawal approved by admin' });
+                } else if (status === 'rejected' && type === 'withdrawal') {
+                    batch.update(userRef, { totalAssets: increment(amount), pendingWithdrawalsAmount: increment(-amount) });
+                }
+
+                try { await batch.commit(); showMessage(`${type} request ${status} successfully!`); } 
+                catch (error) { showMessage(`Error processing request.`, 'error'); console.error(error); }
+            };
+
+            const handleManageDetails = async (userId) => {
+                selectedUserId = userId;
+                const userDoc = await getDoc(doc(db, 'users', userId));
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    DOMElements.modalUsername.textContent = `Manage Details: ${userData.username}`;
+                    DOMElements.modalLevelSelect.value = userData.investmentLevel || 'None';
+                    toggleModal(DOMElements.userModal, true);
+                }
+            };
             
-            // Notifications Modal Logic
-            const openNotifications = () => DOMElements.notificationsModal.classList.remove('hidden');
-            DOMElements.headerNotificationBell.addEventListener('click', openNotifications);
-            DOMElements.closeNotificationsModalBtn.addEventListener('click', () => DOMElements.notificationsModal.classList.add('hidden'));
+            DOMElements.updateUserBtn.addEventListener('click', async () => {
+                if (!selectedUserId) return;
+                const newLevel = DOMElements.modalLevelSelect.value;
+                try {
+                    await updateDoc(doc(db, 'users', selectedUserId), { investmentLevel: newLevel });
+                    showMessage('User level updated successfully!');
+                    toggleModal(DOMElements.userModal, false);
+                } catch (error) { showMessage('Error updating user.', 'error'); }
+            });
 
-            DOMElements.navItems.forEach(item => item.addEventListener('click', () => switchPage(item.dataset.page)));
+            const handleManageAssets = async (userId) => {
+                selectedUserId = userId;
+                const userDoc = await getDoc(doc(db, 'users', userId));
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    DOMElements.assetModalUsername.textContent = `Manage Assets: ${userData.username}`;
+                    DOMElements.modalTotalAssets.value = userData.totalAssets || 0;
+                    toggleModal(DOMElements.assetModal, true);
+                }
+            };
+            
+            DOMElements.updateAssetsBtn.addEventListener('click', async () => {
+                if (!selectedUserId) return;
+                const newTotalAssets = parseFloat(DOMElements.modalTotalAssets.value);
+                if (isNaN(newTotalAssets)) { showMessage('Invalid asset amount.', 'error'); return; }
+                try {
+                    await updateDoc(doc(db, 'users', selectedUserId), { totalAssets: newTotalAssets });
+                    showMessage('User assets updated successfully!');
+                    toggleModal(DOMElements.assetModal, false);
+                } catch (error) { showMessage('Error updating assets.', 'error'); }
+            });
 
-            // --- Auth State Change Handler ---
-            onAuthStateChanged(auth, user => { if (user) { DOMElements.authContainer.style.display = 'none'; DOMElements.appContainer.style.display = 'flex'; listenToUserData(user); listenToNotifications(user); switchPage('home'); } else { DOMElements.authContainer.style.display = 'flex'; DOMElements.appContainer.style.display = 'none'; if (unsubscribeUser) unsubscribeUser(); if (unsubscribeNotifications) unsubscribeNotifications(); currentUserData = null; } });
-            switchAuthTab('login');
+            const handleDeleteUser = async (userId) => {
+                if (!confirm('Are you sure you want to permanently delete this user and all their data? This cannot be undone.')) return;
+                try {
+                    await deleteDoc(doc(db, 'users', userId));
+                    // Note: For a production app, you'd use a Cloud Function to delete subcollections.
+                    // This client-side deletion is a simplification.
+                    showMessage('User deleted successfully!');
+                } catch (error) { showMessage('Error deleting user.', 'error'); }
+            };
+
+            const handleViewReport = async (userId) => {
+                const userDoc = await getDoc(doc(db, 'users', userId));
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    DOMElements.reportModalUsername.textContent = `Report for ${userData.username}`;
+                    
+                    const transactionsSnap = await getDocs(query(collection(db, `users/${userId}/transactions`), orderBy('timestamp', 'desc')));
+                    let transactionsHtml = '<tr><td colspan="3" class="text-center p-2">No transactions found.</td></tr>';
+                    if (!transactionsSnap.empty) {
+                        transactionsHtml = transactionsSnap.docs.map(tDoc => {
+                            const tData = tDoc.data();
+                            return `<tr><td class="p-2 border-b">${new Date(tData.timestamp.toDate()).toLocaleString()}</td><td class="p-2 border-b">${tData.type}</td><td class="p-2 border-b">${formatKsh(tData.amount)}</td></tr>`;
+                        }).join('');
+                    }
+                    
+                    DOMElements.reportContent.innerHTML = `
+                        <h4 class="font-bold text-lg text-gray-700 mb-2">Transactions</h4>
+                        <table class="min-w-full bg-white text-sm">
+                            <thead class="bg-gray-200"><tr><th class="p-2 text-left">Date</th><th class="p-2 text-left">Type</th><th class="p-2 text-left">Amount</th></tr></thead>
+                            <tbody>${transactionsHtml}</tbody>
+                        </table>`;
+                    toggleModal(DOMElements.reportModal, true);
+                }
+            };
+            
+            const sendNotification = async (title, message, targetUser = null) => {
+                 if (!title || !message) { showMessage('Title and Message cannot be empty.', 'error'); return; }
+                try {
+                    const batch = writeBatch(db);
+                    if (targetUser) {
+                        const q = query(collection(db, 'users'), where('username', '==', targetUser));
+                        const userSnap = await getDocs(q);
+                        if (userSnap.empty) { showMessage(`User "${targetUser}" not found.`, 'error'); return; }
+                        const userId = userSnap.docs[0].id;
+                        const notificationRef = doc(collection(db, 'notifications'));
+                        batch.set(notificationRef, { userId, title, message, read: false, timestamp: serverTimestamp() });
+                    } else {
+                        const usersSnap = await getDocs(collection(db, 'users'));
+                        usersSnap.forEach(userDoc => {
+                            const notificationRef = doc(collection(db, 'notifications'));
+                            batch.set(notificationRef, { userId: userDoc.id, title, message, read: false, timestamp: serverTimestamp() });
+                        });
+                    }
+                    await batch.commit();
+                    showMessage(`Notification sent successfully!`);
+                    DOMElements.notificationTitle.value = '';
+                    DOMElements.notificationMessage.value = '';
+                    DOMElements.notificationUserInput.value = '';
+                } catch (error) { showMessage('Error sending notification.', 'error'); console.error(error); }
+            };
+
+            DOMElements.sendNotificationBtn.addEventListener('click', () => sendNotification(DOMElements.notificationTitle.value, DOMElements.notificationMessage.value, DOMElements.notificationUserInput.value.trim() || null));
+            DOMElements.sendWelcomeBtn.addEventListener('click', () => sendNotification('Welcome to MERIDA!', 'We are thrilled to have you on board. Complete your first task to start earning!', DOMElements.notificationUserInput.value.trim() || null));
+            DOMElements.sendReminderBtn.addEventListener('click', () => sendNotification('Withdrawal Rule Reminder', 'To ensure smooth withdrawals, please remember that you need at least two active referrals. Keep growing your team!', DOMElements.notificationUserInput.value.trim() || null));
         });
     </script>
 </body>
