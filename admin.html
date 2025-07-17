@@ -44,6 +44,7 @@
                         <li><div class="sidebar-link active" data-target="overview"><i class="fas fa-fw fa-tachometer-alt"></i>Overview</div></li>
                         <li class="relative"><div class="sidebar-link" data-target="deposits"><i class="fas fa-fw fa-download"></i>Deposit Requests</div><div id="deposits-badge" class="notification-badge hidden">0</div></li>
                         <li class="relative"><div class="sidebar-link" data-target="withdrawals"><i class="fas fa-fw fa-upload"></i>Withdrawal Requests</div><div id="withdrawals-badge" class="notification-badge hidden">0</div></li>
+                        <li class="relative"><div class="sidebar-link" data-target="credit"><i class="fas fa-fw fa-hand-holding-usd"></i>Manual Credit</div><div id="credit-badge" class="notification-badge hidden">0</div></li>
                         <li><div class="sidebar-link" data-target="users"><i class="fas fa-fw fa-users"></i>Manage Users</div></li>
                         <li><div class="sidebar-link" data-target="notifications"><i class="fas fa-fw fa-paper-plane"></i>Send Notifications</div></li>
                     </ul>
@@ -65,6 +66,7 @@
 
                 <div id="deposits-section" class="content-section"><div id="deposits-list" class="space-y-4 bg-white p-4 rounded-lg shadow"><p class="text-gray-500 text-center p-4">Loading requests...</p></div></div>
                 <div id="withdrawals-section" class="content-section"><div id="withdrawals-list" class="space-y-4 bg-white p-4 rounded-lg shadow"><p class="text-gray-500 text-center p-4">Loading requests...</p></div></div>
+                <div id="credit-section" class="content-section"><div id="credit-list" class="space-y-4 bg-white p-4 rounded-lg shadow"><p class="text-gray-500 text-center p-4">Loading pending credits...</p></div></div>
                 <div id="users-section" class="content-section"><div id="users-list" class="space-y-4 bg-white p-4 rounded-lg shadow max-h-[75vh] overflow-y-auto"></div></div>
                 
                 <div id="notifications-section" class="content-section">
@@ -90,27 +92,16 @@
         <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg text-gray-800">
             <h3 class="font-bold text-xl mb-4" id="modal-username">Manage User Details</h3>
             <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Set/Update Investment Level</label>
-                    <select id="modal-level-select" class="mt-1 block w-full px-3 py-2 bg-slate-50 border rounded-md styled-input"></select>
-                </div>
+                <div><label class="block text-sm font-medium text-gray-700">Set/Update Investment Level</label><select id="modal-level-select" class="mt-1 block w-full px-3 py-2 bg-slate-50 border rounded-md styled-input"></select></div>
             </div>
             <div id="sponsor-bonus-section" class="hidden modal-section">
-                <h4 class="font-bold text-lg">Sponsor Bonus</h4>
-                <p class="text-sm text-gray-600">Sponsor: <span id="sponsor-name" class="font-semibold">N/A</span></p>
-                <div id="sponsor-bonus-controls">
-                    <p class="text-sm my-2">Award a one-time 5% bonus to the sponsor based on the user's new investment level.</p>
-                    <button id="apply-bonus-btn" class="w-full bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600">Apply 5% Sponsor Bonus</button>
-                </div>
+                <h4 class="font-bold text-lg">Sponsor Bonus</h4><p class="text-sm text-gray-600">Sponsor: <span id="sponsor-name" class="font-semibold">N/A</span></p>
+                <div id="sponsor-bonus-controls"><p class="text-sm my-2">Award a one-time 5% bonus to the sponsor based on the user's new investment level.</p><button id="apply-bonus-btn" class="w-full bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600">Apply 5% Sponsor Bonus</button></div>
                 <p id="bonus-paid-message" class="hidden text-sm text-green-600 font-semibold mt-2">Sponsor bonus for this user has already been paid.</p>
             </div>
-            <div class="mt-6 flex justify-end space-x-3">
-                <button id="close-user-modal-btn" class="bg-slate-200 text-slate-700 font-bold py-2 px-4 rounded-lg hover:bg-slate-300">Close</button>
-                <button id="update-user-btn" class="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600">Update User</button>
-            </div>
+            <div class="mt-6 flex justify-end space-x-3"><button id="close-user-modal-btn" class="bg-slate-200 text-slate-700 font-bold py-2 px-4 rounded-lg hover:bg-slate-300">Close</button><button id="update-user-btn" class="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600">Update User</button></div>
         </div>
     </div>
-    
     <div id="asset-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-40 p-4">
         <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg text-gray-800">
             <h3 class="font-bold text-xl mb-4" id="asset-modal-username">Manage Assets</h3>
@@ -122,13 +113,9 @@
             <div class="mt-6 flex justify-end space-x-3"><button id="close-asset-modal-btn" class="bg-slate-200 text-slate-700 font-bold py-2 px-4 rounded-lg hover:bg-slate-300">Close</button><button id="update-assets-btn" class="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600">Update Assets</button></div>
         </div>
     </div>
-    
     <div id="report-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
         <div class="bg-gray-50 rounded-xl shadow-2xl p-6 w-full max-w-4xl text-gray-800 max-h-[95vh] flex flex-col">
-            <div class="flex justify-between items-center mb-4 border-b pb-3">
-                <h3 class="font-bold text-2xl" id="report-modal-username">User Report</h3>
-                <button id="close-report-modal-btn" class="text-gray-400 hover:text-red-500 text-3xl leading-none">&times;</button>
-            </div>
+            <div class="flex justify-between items-center mb-4 border-b pb-3"><h3 class="font-bold text-2xl" id="report-modal-username">User Report</h3><button id="close-report-modal-btn" class="text-gray-400 hover:text-red-500 text-3xl leading-none">&times;</button></div>
             <div id="report-content" class="overflow-y-auto space-y-6 p-2"></div>
         </div>
     </div>
@@ -165,8 +152,7 @@
             };
 
             let app, auth, db, selectedUserId = null, selectedUserData = null;
-            // MODIFICATION: Added a cache for all users to improve notification sending
-            let allUsersData = []; 
+            let allUsersData = [];
             try { app = initializeApp(firebaseConfig); auth = getAuth(app); db = getFirestore(app); } catch (e) { console.error("Firebase init failed:", e); }
 
             // --- DOM Elements ---
@@ -174,8 +160,8 @@
                 loginContainer: document.getElementById('admin-login-container'), panelContainer: document.getElementById('admin-panel-container'), loginForm: document.getElementById('admin-login-form'), errorMessage: document.getElementById('admin-error-message'), logoutBtn: document.getElementById('admin-logout-btn'),
                 navItems: document.querySelectorAll('.sidebar-link'), pageTitle: document.getElementById('page-title'),
                 statTotalUsers: document.getElementById('total-users-stat'), statTotalAssets: document.getElementById('total-assets-stat'), statPendingDeposits: document.getElementById('pending-deposits-stat'), statPendingWithdrawals: document.getElementById('pending-withdrawals-stat'),
-                depositsBadge: document.getElementById('deposits-badge'), withdrawalsBadge: document.getElementById('withdrawals-badge'),
-                depositsList: document.getElementById('deposits-list'), withdrawalsList: document.getElementById('withdrawals-list'), usersList: document.getElementById('users-list'),
+                depositsBadge: document.getElementById('deposits-badge'), withdrawalsBadge: document.getElementById('withdrawals-badge'), creditBadge: document.getElementById('credit-badge'),
+                depositsList: document.getElementById('deposits-list'), withdrawalsList: document.getElementById('withdrawals-list'), creditList: document.getElementById('credit-list'), usersList: document.getElementById('users-list'),
                 userModal: document.getElementById('user-modal'), modalUsername: document.getElementById('modal-username'), modalLevelSelect: document.getElementById('modal-level-select'), updateUserBtn: document.getElementById('update-user-btn'), closeUserModalBtn: document.getElementById('close-user-modal-btn'),
                 sponsorBonusSection: document.getElementById('sponsor-bonus-section'), sponsorName: document.getElementById('sponsor-name'), applyBonusBtn: document.getElementById('apply-bonus-btn'), bonusPaidMessage: document.getElementById('bonus-paid-message'), sponsorBonusControls: document.getElementById('sponsor-bonus-controls'),
                 assetModal: document.getElementById('asset-modal'), assetModalUsername: document.getElementById('asset-modal-username'), modalTotalAssets: document.getElementById('modal-total-assets'), modalTaskProfits: document.getElementById('modal-task-profits'), modalReferralBonuses: document.getElementById('modal-referral-bonuses'), updateAssetsBtn: document.getElementById('update-assets-btn'), closeAssetModalBtn: document.getElementById('close-asset-modal-btn'),
@@ -186,7 +172,7 @@
             };
 
             // --- Utility Functions ---
-            const showMessage = (message, type = 'success') => { DOMElements.messageModalText.textContent = message; DOMElements.messageModal.className = `fixed top-5 right-5 py-2 px-4 rounded-lg shadow-xl z-50 animate-pulse ${type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white`; DOMElements.messageModal.classList.remove('hidden'); setTimeout(() => { DOMElements.messageModal.classList.add('hidden'); }, 4000); };
+            const showMessage = (message, type = 'success') => { DOMElements.messageModalText.textContent = message; DOMElements.messageModal.className = `fixed top-5 right-5 py-2 px-4 rounded-lg shadow-xl z-50 animate-pulse ${type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white`; DOMElements.messageModal.classList.remove('hidden'); setTimeout(() => { DOMElements.messageModal.classList.add('hidden'); }, 5000); };
             const toggleModal = (modalElement, show) => modalElement.classList.toggle('hidden', !show);
             const formatKsh = (amount) => `Ksh ${parseFloat(amount || 0).toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
             const formatDate = (timestamp) => timestamp ? new Date(timestamp.toDate()).toLocaleString() : 'N/A';
@@ -216,24 +202,29 @@
                 onSnapshot(collection(db, 'users'), (snapshot) => {
                     DOMElements.statTotalUsers.textContent = snapshot.size;
                     let totalAssets = 0;
-                    // MODIFICATION: Populate the user cache for notifications
-                    allUsersData = snapshot.docs.map(doc => {
-                        const data = doc.data();
-                        totalAssets += (data.totalAssets || 0);
-                        return { id: doc.id, ...data };
-                    });
+                    allUsersData = snapshot.docs.map(doc => { const data = doc.data(); totalAssets += (data.totalAssets || 0); return { id: doc.id, ...data }; });
                     DOMElements.statTotalAssets.textContent = formatKsh(totalAssets);
                     renderUsers(snapshot.docs);
                 });
+
                 const depositsQuery = query(collection(db, 'deposits'), where('status', '==', 'pending'), orderBy('timestamp', 'desc'));
                 onSnapshot(depositsQuery, (snapshot) => {
                     DOMElements.depositsBadge.textContent = snapshot.size; DOMElements.depositsBadge.classList.toggle('hidden', snapshot.empty); DOMElements.statPendingDeposits.textContent = snapshot.size;
                     renderRequests(snapshot.docs, DOMElements.depositsList, 'deposit');
                 });
+
                 const withdrawalsQuery = query(collection(db, 'withdrawals'), where('status', '==', 'pending'), orderBy('timestamp', 'desc'));
                 onSnapshot(withdrawalsQuery, (snapshot) => {
                     DOMElements.withdrawalsBadge.textContent = snapshot.size; DOMElements.withdrawalsBadge.classList.toggle('hidden', snapshot.empty); DOMElements.statPendingWithdrawals.textContent = snapshot.size;
                     renderRequests(snapshot.docs, DOMElements.withdrawalsList, 'withdrawal');
+                });
+                
+                // NEW FEATURE: Listener for Manual Credit section
+                const creditQuery = query(collection(db, 'deposits'), where('status', '==', 'approved'), where('credited', '==', false), orderBy('processedAt', 'desc'));
+                onSnapshot(creditQuery, (snapshot) => {
+                    DOMElements.creditBadge.textContent = snapshot.size;
+                    DOMElements.creditBadge.classList.toggle('hidden', snapshot.empty);
+                    renderPendingCredits(snapshot.docs);
                 });
             };
 
@@ -243,10 +234,38 @@
                 listElement.innerHTML = docs.map(doc => {
                     const data = doc.data();
                     const details = type === 'deposit' ? `<p class="text-sm text-gray-500">From: ${data.mpesaName} (${data.mpesaPhone})</p>` : '';
-                    // MODIFICATION: Added data-username to buttons for use in action handlers
-                    return `<div class="bg-gray-50 p-4 rounded-lg shadow-sm flex justify-between items-center"><div><p class="font-semibold text-gray-800">${data.username} - ${formatKsh(data.amount)}</p>${details}<p class="text-xs text-gray-400">${formatDate(data.timestamp)}</p></div><div class="space-x-2 flex-shrink-0"><button class="bg-green-500 text-white py-1 px-3 rounded text-sm approve-btn" data-id="${doc.id}" data-user-id="${data.userId}" data-amount="${data.amount}" data-type="${type}" data-username="${data.username}">Approve</button><button class="bg-red-500 text-white py-1 px-3 rounded text-sm reject-btn" data-id="${doc.id}" data-user-id="${data.userId}" data-amount="${data.amount}" data-type="${type}" data-username="${data.username}">Reject</button></div></div>`;
+                    return `<div class="bg-gray-50 p-4 rounded-lg shadow-sm flex justify-between items-center"><div><p class="font-semibold text-gray-800">${data.username} - ${formatKsh(data.amount)}</p>${details}<p class="text-xs text-gray-400">${formatDate(data.timestamp)}</p></div><div class="space-x-2 flex-shrink-0"><button class="bg-green-500 text-white py-1 px-3 rounded text-sm approve-btn" data-id="${doc.id}" data-user-id="${data.userId}" data-amount="${data.amount}" data-type="${type}" data-username="${data.username}">Approve</button><button class="bg-red-500 text-white py-1 px-3 rounded text-sm reject-btn" data-id="${doc.id}" data-user-id="${data.userId}" data-amount="${data.amount}" data-type="${type}">Reject</button></div></div>`;
                 }).join('');
                 addRequestEventListeners(listElement);
+            };
+            
+            // NEW FEATURE: Renders the list of deposits awaiting manual credit
+            const renderPendingCredits = (docs) => {
+                const listElement = DOMElements.creditList;
+                if (docs.length === 0) {
+                    listElement.innerHTML = `<p class="text-gray-500 text-center p-4">No deposits are pending manual credit.</p>`;
+                    return;
+                }
+                listElement.innerHTML = docs.map(doc => {
+                    const data = doc.data();
+                    return `<div class="bg-yellow-50 p-4 rounded-lg shadow-sm flex justify-between items-center">
+                                <div>
+                                    <p class="font-semibold text-gray-800">${data.username} - ${formatKsh(data.amount)}</p>
+                                    <p class="text-xs text-gray-500">Approved On: ${formatDate(data.processedAt)}</p>
+                                </div>
+                                <div class="space-x-2 flex-shrink-0">
+                                    <button class="bg-green-500 text-white font-bold py-2 px-4 rounded credit-funds-btn" data-id="${doc.id}" data-user-id="${data.userId}" data-amount="${data.amount}" data-transaction-id="${data.transactionId || ''}">Credit Funds</button>
+                                </div>
+                            </div>`;
+                }).join('');
+                
+                // Add event listeners for the new buttons
+                listElement.querySelectorAll('.credit-funds-btn').forEach(button => {
+                    button.onclick = (e) => {
+                        const { id, userId, amount, transactionId } = e.currentTarget.dataset;
+                        handleCreditFunds(id, userId, parseFloat(amount), transactionId);
+                    };
+                });
             };
 
             const renderUsers = (docs) => {
@@ -261,76 +280,49 @@
             const addRequestEventListeners = (listElement) => {
                 listElement.querySelectorAll('.approve-btn, .reject-btn').forEach(button => {
                     button.onclick = (e) => {
-                        const { id, userId, amount, type, username } = e.currentTarget.dataset; // MODIFICATION: Get username from data attribute
+                        const { id, userId, amount, type, username } = e.currentTarget.dataset;
                         const status = e.currentTarget.classList.contains('approve-btn') ? 'approved' : 'rejected';
                         handleRequestAction(id, userId, parseFloat(amount), type, status, username);
                     };
                 });
             };
 
-            const addUsersEventListeners = () => {
-                DOMElements.usersList.querySelectorAll('button').forEach(button => {
-                    button.onclick = (e) => {
-                        const { id } = e.currentTarget.dataset;
-                        if (button.classList.contains('manage-details-btn')) handleManageDetails(id);
-                        if (button.classList.contains('manage-assets-btn')) handleManageAssets(id);
-                        if (button.classList.contains('view-report-btn')) handleViewReport(id);
-                        if (button.classList.contains('delete-user-btn')) handleDeleteUser(id);
-                    };
-                });
-            };
-
-            DOMElements.closeUserModalBtn.addEventListener('click', () => toggleModal(DOMElements.userModal, false));
-            DOMElements.closeAssetModalBtn.addEventListener('click', () => toggleModal(DOMElements.assetModal, false));
-            DOMElements.closeReportModalBtn.addEventListener('click', () => toggleModal(DOMElements.reportModal, false));
-            
-            DOMElements.navItems.forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault(); const targetId = link.dataset.target;
-                    DOMElements.navItems.forEach(l => l.classList.remove('active'));
-                    link.classList.add('active');
-                    document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
-                    document.getElementById(`${targetId}-section`).classList.add('active');
-                    DOMElements.pageTitle.textContent = targetId.charAt(0).toUpperCase() + targetId.slice(1);
-                });
-            });
-
             // --- Action Handlers ---
-            const handleRequestAction = async (requestId, userId, amount, type, status, username) => { // MODIFICATION: Added username parameter
+            const handleRequestAction = async (requestId, userId, amount, type, status, username) => {
                 const batch = writeBatch(db);
                 const requestRef = doc(db, `${type}s`, requestId);
-                batch.update(requestRef, { status: status, processedAt: serverTimestamp() });
                 const userRef = doc(db, 'users', userId);
-                const notificationRef = doc(collection(db, 'notifications'));
-
+                
                 if (status === 'approved') {
                     if (type === 'deposit') {
-                        // MODIFICATION: Removed automatic increment of totalAssets
-                        // batch.update(userRef, { totalAssets: increment(amount) }); 
-                        
-                        // MODIFICATION: Create transaction record with updated description
                         const transRef = doc(collection(db, `users/${userId}/transactions`));
-                        batch.set(transRef, { type: 'deposit', amount, status: 'approved', timestamp: serverTimestamp(), description: 'Deposit approved. Pending manual credit.' });
-                        
-                        // MODIFICATION: Send notification to user about approval
-                        batch.set(notificationRef, { userId: userId, title: '✅ Deposit Approved', message: `Your deposit of ${formatKsh(amount)} is approved. An admin will credit your account shortly.`, read: false, timestamp: serverTimestamp() });
-
+                        // Create transaction record
+                        batch.set(transRef, { type: 'deposit', amount, status: 'approved', timestamp: serverTimestamp(), description: 'Deposit approved, pending credit.' });
+                        // Update deposit request to move it to the manual credit queue
+                        batch.update(requestRef, { status: 'approved', credited: false, processedAt: serverTimestamp(), transactionId: transRef.id });
+                        // Send notification to user
+                        const notifyRef = doc(collection(db, 'notifications'));
+                        batch.set(notifyRef, { userId, title: '✅ Deposit Approved', message: `Your deposit of ${formatKsh(amount)} is approved and is being processed.`, read: false, timestamp: serverTimestamp() });
                     } else if (type === 'withdrawal') {
                         batch.update(userRef, { pendingWithdrawalsAmount: increment(-amount) });
                         const transRef = doc(collection(db, `users/${userId}/transactions`));
                         batch.set(transRef, { type: 'withdrawal', amount, status: 'completed', timestamp: serverTimestamp(), description: 'Withdrawal approved by admin' });
-                        batch.set(notificationRef, { userId: userId, title: '✅ Withdrawal Approved', message: `Your withdrawal request for ${formatKsh(amount)} was successful and has been processed.`, read: false, timestamp: serverTimestamp() });
+                        const notifyRef = doc(collection(db, 'notifications'));
+                        batch.set(notifyRef, { userId, title: '✅ Withdrawal Approved', message: `Your withdrawal request for ${formatKsh(amount)} was successful.`, read: false, timestamp: serverTimestamp() });
                     }
-                } else if (status === 'rejected' && type === 'withdrawal') {
-                    batch.update(userRef, { totalAssets: increment(amount), pendingWithdrawalsAmount: increment(-amount) });
-                    batch.set(notificationRef, { userId: userId, title: '❌ Withdrawal Rejected', message: `Your withdrawal request for ${formatKsh(amount)} was rejected. The funds have been returned to your account. Please contact support for details.`, read: false, timestamp: serverTimestamp() });
+                } else { // 'rejected'
+                     batch.update(requestRef, { status: 'rejected', processedAt: serverTimestamp() });
+                    if (type === 'withdrawal') {
+                        batch.update(userRef, { totalAssets: increment(amount), pendingWithdrawalsAmount: increment(-amount) });
+                        const notifyRef = doc(collection(db, 'notifications'));
+                        batch.set(notifyRef, { userId, title: '❌ Withdrawal Rejected', message: `Your withdrawal for ${formatKsh(amount)} was rejected. Funds returned to your account.`, read: false, timestamp: serverTimestamp() });
+                    }
                 }
 
                 try { 
                     await batch.commit(); 
                     if (type === 'deposit' && status === 'approved') {
-                        // MODIFICATION: Show admin a reminder message
-                        showMessage(`Deposit for ${username} approved. Please credit the account manually via Manage Assets.`);
+                        showMessage(`Deposit for ${username} moved to the Manual Credit section.`);
                     } else {
                         showMessage(`${type} request ${status} successfully!`);
                     }
@@ -338,165 +330,58 @@
                 catch (error) { showMessage(`Error processing request.`, 'error'); console.error(error); }
             };
 
-            const handleManageDetails = async (userId) => {
-                selectedUserId = userId;
-                const userDoc = await getDoc(doc(db, 'users', userId));
-                if (!userDoc.exists()) { showMessage('User not found', 'error'); return; }
-                
-                selectedUserData = userDoc.data();
-                DOMElements.modalUsername.textContent = `Manage Details: ${selectedUserData.username}`;
-                DOMElements.modalLevelSelect.value = selectedUserData.investmentLevel || 'None';
-
-                // Sponsor Bonus Logic
-                DOMElements.sponsorBonusSection.classList.add('hidden');
-                DOMElements.sponsorName.textContent = 'N/A';
-                if (selectedUserData.referredBy) {
-                    const sponsorDoc = await getDoc(doc(db, 'users', selectedUserData.referredBy));
-                    if (sponsorDoc.exists()) {
-                        DOMElements.sponsorName.textContent = sponsorDoc.data().username;
-                        DOMElements.sponsorBonusSection.classList.remove('hidden');
-                        
-                        const bonusPaid = selectedUserData.sponsorBonusPaid || false;
-                        DOMElements.sponsorBonusControls.classList.toggle('hidden', bonusPaid);
-                        DOMElements.bonusPaidMessage.classList.toggle('hidden', !bonusPaid);
-                    }
-                }
-                toggleModal(DOMElements.userModal, true);
-            };
-            
-            DOMElements.updateUserBtn.addEventListener('click', async () => {
-                if (!selectedUserId) return;
-                const newLevel = DOMElements.modalLevelSelect.value;
-                try {
-                    await updateDoc(doc(db, 'users', selectedUserId), { investmentLevel: newLevel });
-                    showMessage('User level updated successfully!');
-                    toggleModal(DOMElements.userModal, false);
-                } catch (error) { showMessage('Error updating user.', 'error'); }
-            });
-
-            DOMElements.applyBonusBtn.addEventListener('click', async () => {
-                if (!selectedUserId || !selectedUserData?.referredBy || selectedUserData?.sponsorBonusPaid) {
-                    showMessage('Cannot apply bonus.', 'error');
+            // NEW FEATURE: Handles the final step of crediting the funds to the user
+            const handleCreditFunds = async (depositId, userId, amount, transactionId) => {
+                if (!depositId || !userId || !amount) {
+                    showMessage('Missing information to credit funds.', 'error');
                     return;
                 }
-                const newLevel = DOMElements.modalLevelSelect.value;
-                const investmentAmount = INVESTMENT_LEVELS[newLevel]?.investment || 0;
-                if (investmentAmount <= 0) {
-                    showMessage('Select a valid investment level to apply a bonus.', 'error');
-                    return;
-                }
-
-                const bonusAmount = investmentAmount * 0.05;
-                const sponsorId = selectedUserData.referredBy;
-                
                 const batch = writeBatch(db);
-                const sponsorRef = doc(db, 'users', sponsorId);
-                const userRef = doc(db, 'users', selectedUserId);
                 
-                batch.update(sponsorRef, { totalAssets: increment(bonusAmount), totalReferralBonuses: increment(bonusAmount) });
-                const sponsorTransRef = doc(collection(db, `users/${sponsorId}/transactions`));
-                batch.set(sponsorTransRef, { type: 'referral_bonus', amount: bonusAmount, status: 'completed', timestamp: serverTimestamp(), description: `5% bonus from ${selectedUserData.username}'s investment.` });
-                batch.update(userRef, { sponsorBonusPaid: true });
-                
+                // 1. Credit user's account
+                const userRef = doc(db, 'users', userId);
+                batch.update(userRef, { totalAssets: increment(amount) });
+
+                // 2. Mark the deposit as credited
+                const depositRef = doc(db, 'deposits', depositId);
+                batch.update(depositRef, { credited: true, creditedAt: serverTimestamp() });
+
+                // 3. Update transaction description (if transactionId is available)
+                if (transactionId) {
+                    const transRef = doc(db, `users/${userId}/transactions`, transactionId);
+                    batch.update(transRef, { description: 'Funds credited by admin.' });
+                }
+
+                // 4. Send final notification to user
+                const notifyRef = doc(collection(db, 'notifications'));
+                batch.set(notifyRef, { userId, title: '💰 Account Credited!', message: `Your account has been successfully credited with ${formatKsh(amount)}.`, read: false, timestamp: serverTimestamp() });
+
                 try {
                     await batch.commit();
-                    showMessage(`Bonus of ${formatKsh(bonusAmount)} applied to sponsor!`, 'success');
-                    DOMElements.sponsorBonusControls.classList.add('hidden');
-                    DOMElements.bonusPaidMessage.classList.remove('hidden');
+                    showMessage(`Successfully credited ${formatKsh(amount)} to the user.`);
                 } catch (error) {
-                    showMessage('Error applying bonus.', 'error');
-                    console.error("Bonus Error:", error);
-                }
-            });
-
-            const handleManageAssets = async (userId) => {
-                selectedUserId = userId;
-                const userDoc = await getDoc(doc(db, 'users', userId));
-                if (userDoc.exists()) {
-                    const userData = userDoc.data();
-                    DOMElements.assetModalUsername.textContent = `Manage Assets: ${userData.username}`;
-                    DOMElements.modalTotalAssets.value = userData.totalAssets || 0;
-                    DOMElements.modalTaskProfits.value = userData.totalTaskProfits || 0;
-                    DOMElements.modalReferralBonuses.value = userData.totalReferralBonuses || 0;
-                    toggleModal(DOMElements.assetModal, true);
+                    showMessage('Error crediting funds.', 'error');
+                    console.error("Credit Funds Error:", error);
                 }
             };
-            
-            DOMElements.updateAssetsBtn.addEventListener('click', async () => {
-                if (!selectedUserId) return;
-                const newTotalAssets = parseFloat(DOMElements.modalTotalAssets.value);
-                const newTaskProfits = parseFloat(DOMElements.modalTaskProfits.value);
-                const newReferralBonuses = parseFloat(DOMElements.modalReferralBonuses.value);
 
-                if (isNaN(newTotalAssets) || isNaN(newTaskProfits) || isNaN(newReferralBonuses)) { 
-                    showMessage('Invalid asset amount.', 'error'); return; 
-                }
-                try {
-                    await updateDoc(doc(db, 'users', selectedUserId), { 
-                        totalAssets: newTotalAssets,
-                        totalTaskProfits: newTaskProfits,
-                        totalReferralBonuses: newReferralBonuses
-                    });
-                    showMessage('User assets updated successfully!');
-                    toggleModal(DOMElements.assetModal, false);
-                } catch (error) { showMessage('Error updating assets.', 'error'); }
-            });
-
-            const handleDeleteUser = async (userId) => {
-                if (prompt("Type 'DELETE' to confirm permanent deletion of this user.") !== 'DELETE') { return; }
-                try {
-                    await deleteDoc(doc(db, 'users', userId));
-                    showMessage('User deleted successfully!');
-                } catch (error) { showMessage('Error deleting user.', 'error'); }
-            };
-
-            const handleViewReport = async (userId) => {
-                const userDoc = await getDoc(doc(db, 'users', userId));
-                if (!userDoc.exists()) { showMessage('User not found', 'error'); return; }
-                
-                const userData = userDoc.data();
-                DOMElements.reportModalUsername.textContent = `Report for ${userData.username}`;
-                DOMElements.reportContent.innerHTML = '<p class="text-center">Generating report...</p>';
-                toggleModal(DOMElements.reportModal, true);
-
-                const [transactionsSnap, tasksSnap, referralsSnap] = await Promise.all([
-                    getDocs(query(collection(db, `users/${userId}/transactions`), orderBy('timestamp', 'desc'))),
-                    getDocs(query(collection(db, `users/${userId}/completedTasks`), orderBy('completedAt', 'desc'))),
-                    getDocs(query(collection(db, 'users'), where('referredBy', '==', userId)))
-                ]);
-
-                const generalInfoHtml = `<div class="modal-section"><h4 class="font-bold text-lg text-gray-700 mb-2">Account Information</h4><div class="grid grid-cols-2 gap-2 text-sm"><p><span class="font-semibold">Account Activated:</span> ${formatDate(userData.createdAt)}</p><p><span class="font-semibold">Current Level:</span> ${INVESTMENT_LEVELS[userData.investmentLevel]?.name || 'N/A'}</p><p><span class="font-semibold">Sponsor:</span> ${userData.sponsorUsername || 'None'}</p></div></div>`;
-                let tasksHtml = '<tr><td colspan="2" class="text-center p-2">No tasks completed.</td></tr>';
-                if (!tasksSnap.empty) { tasksHtml = tasksSnap.docs.map(tDoc => { const tData = tDoc.data(); return `<tr><td class="p-2 border-b">${tData.taskName || 'Unnamed Task'}</td><td class="p-2 border-b">${formatDate(tData.completedAt)}</td></tr>`; }).join(''); }
-                const tasksTable = `<div class="modal-section"><h4 class="font-bold text-lg text-gray-700 mb-2">Completed Tasks</h4><table class="min-w-full bg-white text-sm"><thead class="bg-gray-200"><tr><th class="p-2 text-left">Task</th><th class="p-2 text-left">Completed At</th></tr></thead><tbody>${tasksHtml}</tbody></table></div>`;
-                let transactionsHtml = '<tr><td colspan="4" class="text-center p-2">No transactions found.</td></tr>';
-                if (!transactionsSnap.empty) { transactionsHtml = transactionsSnap.docs.map(tDoc => { const tData = tDoc.data(); return `<tr><td class="p-2 border-b">${formatDate(tData.timestamp)}</td><td class="p-2 border-b capitalize">${(tData.type || '').replace('_', ' ')}</td><td class="p-2 border-b">${formatKsh(tData.amount)}</td><td class="p-2 border-b text-gray-500">${tData.description || ''}</td></tr>`; }).join(''); }
-                const transactionsTable = `<div class="modal-section"><h4 class="font-bold text-lg text-gray-700 mb-2">Transactions</h4><table class="min-w-full bg-white text-sm"><thead class="bg-gray-200"><tr><th class="p-2 text-left">Date</th><th class="p-2 text-left">Type</th><th class="p-2 text-left">Amount</th><th class="p-2 text-left">Description</th></tr></thead><tbody>${transactionsHtml}</tbody></table></div>`;
-                let referralsHtml = '<li class="text-center p-2">No referrals found.</li>';
-                if (!referralsSnap.empty) { referralsHtml = referralsSnap.docs.map(rDoc => `<li class="p-2 border-b">${rDoc.data().username}</li>`).join(''); }
-                const referralsList = `<div class="modal-section"><h4 class="font-bold text-lg text-gray-700 mb-2">Referral Team</h4><ul class="bg-white rounded-md">${referralsHtml}</ul></div>`;
-                DOMElements.reportContent.innerHTML = generalInfoHtml + tasksTable + transactionsTable + referralsList;
-            };
-            
-            // MODIFICATION: Rewritten function for robust, case-insensitive user searching
+            // NOTIFICATION FIX: More robust search logic
             const sendNotification = async (title, message, targetUsername = null) => {
                 if (!title || !message) { showMessage('Title and Message cannot be empty.', 'error'); return; }
                 try {
                     const batch = writeBatch(db);
                     if (targetUsername) {
-                        const targetUsernameLower = targetUsername.toLowerCase();
-                        // Search the cached user data
-                        const user = allUsersData.find(u => u.username && u.username.toLowerCase() === targetUsernameLower);
+                        const targetUsernameLower = targetUsername.trim().toLowerCase();
+                        // Search the cached user data, trimming the stored username for comparison
+                        const user = allUsersData.find(u => u.username && u.username.trim().toLowerCase() === targetUsernameLower);
 
                         if (!user) {
-                            showMessage(`User "${targetUsername}" not found. Please check the username.`, 'error');
+                            showMessage(`User "${targetUsername}" not found. Please check for typos.`, 'error');
                             return;
                         }
-                        // If user is found, create a notification for them
                         const notificationRef = doc(collection(db, 'notifications'));
                         batch.set(notificationRef, { userId: user.id, title, message, read: false, timestamp: serverTimestamp() });
                     } else {
-                        // Send to all users by iterating through the cached data
                         allUsersData.forEach(user => {
                             const notificationRef = doc(collection(db, 'notifications'));
                             batch.set(notificationRef, { userId: user.id, title, message, read: false, timestamp: serverTimestamp() });
@@ -508,7 +393,20 @@
                 } catch (error) { showMessage('Error sending notification.', 'error'); console.error(error); }
             };
 
-            DOMElements.sendNotificationBtn.addEventListener('click', () => sendNotification(DOMElements.notificationTitle.value, DOMElements.notificationMessage.value, DOMElements.notificationUserInput.value.trim() || null));
+            // --- Other functions (unchanged) ---
+            const addUsersEventListeners = () => { DOMElements.usersList.querySelectorAll('button').forEach(button => { button.onclick = (e) => { const { id } = e.currentTarget.dataset; if (button.classList.contains('manage-details-btn')) handleManageDetails(id); if (button.classList.contains('manage-assets-btn')) handleManageAssets(id); if (button.classList.contains('view-report-btn')) handleViewReport(id); if (button.classList.contains('delete-user-btn')) handleDeleteUser(id); }; }); };
+            DOMElements.closeUserModalBtn.addEventListener('click', () => toggleModal(DOMElements.userModal, false));
+            DOMElements.closeAssetModalBtn.addEventListener('click', () => toggleModal(DOMElements.assetModal, false));
+            DOMElements.closeReportModalBtn.addEventListener('click', () => toggleModal(DOMElements.reportModal, false));
+            DOMElements.navItems.forEach(link => { link.addEventListener('click', (e) => { e.preventDefault(); const targetId = link.dataset.target; DOMElements.navItems.forEach(l => l.classList.remove('active')); link.classList.add('active'); document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active')); document.getElementById(`${targetId}-section`).classList.add('active'); DOMElements.pageTitle.textContent = targetId.charAt(0).toUpperCase() + targetId.slice(1); }); });
+            const handleManageDetails = async (userId) => { selectedUserId = userId; const userDoc = await getDoc(doc(db, 'users', userId)); if (!userDoc.exists()) { showMessage('User not found', 'error'); return; } selectedUserData = userDoc.data(); DOMElements.modalUsername.textContent = `Manage Details: ${selectedUserData.username}`; DOMElements.modalLevelSelect.value = selectedUserData.investmentLevel || 'None'; DOMElements.sponsorBonusSection.classList.add('hidden'); DOMElements.sponsorName.textContent = 'N/A'; if (selectedUserData.referredBy) { const sponsorDoc = await getDoc(doc(db, 'users', selectedUserData.referredBy)); if (sponsorDoc.exists()) { DOMElements.sponsorName.textContent = sponsorDoc.data().username; DOMElements.sponsorBonusSection.classList.remove('hidden'); const bonusPaid = selectedUserData.sponsorBonusPaid || false; DOMElements.sponsorBonusControls.classList.toggle('hidden', bonusPaid); DOMElements.bonusPaidMessage.classList.toggle('hidden', !bonusPaid); } } toggleModal(DOMElements.userModal, true); };
+            DOMElements.updateUserBtn.addEventListener('click', async () => { if (!selectedUserId) return; const newLevel = DOMElements.modalLevelSelect.value; try { await updateDoc(doc(db, 'users', selectedUserId), { investmentLevel: newLevel }); showMessage('User level updated successfully!'); toggleModal(DOMElements.userModal, false); } catch (error) { showMessage('Error updating user.', 'error'); } });
+            DOMElements.applyBonusBtn.addEventListener('click', async () => { if (!selectedUserId || !selectedUserData?.referredBy || selectedUserData?.sponsorBonusPaid) { showMessage('Cannot apply bonus.', 'error'); return; } const newLevel = DOMElements.modalLevelSelect.value; const investmentAmount = INVESTMENT_LEVELS[newLevel]?.investment || 0; if (investmentAmount <= 0) { showMessage('Select a valid investment level to apply a bonus.', 'error'); return; } const bonusAmount = investmentAmount * 0.05; const sponsorId = selectedUserData.referredBy; const batch = writeBatch(db); const sponsorRef = doc(db, 'users', sponsorId); const userRef = doc(db, 'users', selectedUserId); batch.update(sponsorRef, { totalAssets: increment(bonusAmount), totalReferralBonuses: increment(bonusAmount) }); const sponsorTransRef = doc(collection(db, `users/${sponsorId}/transactions`)); batch.set(sponsorTransRef, { type: 'referral_bonus', amount: bonusAmount, status: 'completed', timestamp: serverTimestamp(), description: `5% bonus from ${selectedUserData.username}'s investment.` }); batch.update(userRef, { sponsorBonusPaid: true }); try { await batch.commit(); showMessage(`Bonus of ${formatKsh(bonusAmount)} applied to sponsor!`, 'success'); DOMElements.sponsorBonusControls.classList.add('hidden'); DOMElements.bonusPaidMessage.classList.remove('hidden'); } catch (error) { showMessage('Error applying bonus.', 'error'); console.error("Bonus Error:", error); } });
+            const handleManageAssets = async (userId) => { selectedUserId = userId; const userDoc = await getDoc(doc(db, 'users', userId)); if (userDoc.exists()) { const userData = userDoc.data(); DOMElements.assetModalUsername.textContent = `Manage Assets: ${userData.username}`; DOMElements.modalTotalAssets.value = userData.totalAssets || 0; DOMElements.modalTaskProfits.value = userData.totalTaskProfits || 0; DOMElements.modalReferralBonuses.value = userData.totalReferralBonuses || 0; toggleModal(DOMElements.assetModal, true); } };
+            DOMElements.updateAssetsBtn.addEventListener('click', async () => { if (!selectedUserId) return; const newTotalAssets = parseFloat(DOMElements.modalTotalAssets.value); const newTaskProfits = parseFloat(DOMElements.modalTaskProfits.value); const newReferralBonuses = parseFloat(DOMElements.modalReferralBonuses.value); if (isNaN(newTotalAssets) || isNaN(newTaskProfits) || isNaN(newReferralBonuses)) { showMessage('Invalid asset amount.', 'error'); return; } try { await updateDoc(doc(db, 'users', selectedUserId), { totalAssets: newTotalAssets, totalTaskProfits: newTaskProfits, totalReferralBonuses: newReferralBonuses }); showMessage('User assets updated successfully!'); toggleModal(DOMElements.assetModal, false); } catch (error) { showMessage('Error updating assets.', 'error'); } });
+            const handleDeleteUser = async (userId) => { if (prompt("Type 'DELETE' to confirm permanent deletion of this user.") !== 'DELETE') { return; } try { await deleteDoc(doc(db, 'users', userId)); showMessage('User deleted successfully!'); } catch (error) { showMessage('Error deleting user.', 'error'); } };
+            const handleViewReport = async (userId) => { const userDoc = await getDoc(doc(db, 'users', userId)); if (!userDoc.exists()) { showMessage('User not found', 'error'); return; } const userData = userDoc.data(); DOMElements.reportModalUsername.textContent = `Report for ${userData.username}`; DOMElements.reportContent.innerHTML = '<p class="text-center">Generating report...</p>'; toggleModal(DOMElements.reportModal, true); const [transactionsSnap, tasksSnap, referralsSnap] = await Promise.all([ getDocs(query(collection(db, `users/${userId}/transactions`), orderBy('timestamp', 'desc'))), getDocs(query(collection(db, `users/${userId}/completedTasks`), orderBy('completedAt', 'desc'))), getDocs(query(collection(db, 'users'), where('referredBy', '==', userId))) ]); const generalInfoHtml = `<div class="modal-section"><h4 class="font-bold text-lg text-gray-700 mb-2">Account Information</h4><div class="grid grid-cols-2 gap-2 text-sm"><p><span class="font-semibold">Account Activated:</span> ${formatDate(userData.createdAt)}</p><p><span class="font-semibold">Current Level:</span> ${INVESTMENT_LEVELS[userData.investmentLevel]?.name || 'N/A'}</p><p><span class="font-semibold">Sponsor:</span> ${userData.sponsorUsername || 'None'}</p></div></div>`; let tasksHtml = '<tr><td colspan="2" class="text-center p-2">No tasks completed.</td></tr>'; if (!tasksSnap.empty) { tasksHtml = tasksSnap.docs.map(tDoc => { const tData = tDoc.data(); return `<tr><td class="p-2 border-b">${tData.taskName || 'Unnamed Task'}</td><td class="p-2 border-b">${formatDate(tData.completedAt)}</td></tr>`; }).join(''); } const tasksTable = `<div class="modal-section"><h4 class="font-bold text-lg text-gray-700 mb-2">Completed Tasks</h4><table class="min-w-full bg-white text-sm"><thead class="bg-gray-200"><tr><th class="p-2 text-left">Task</th><th class="p-2 text-left">Completed At</th></tr></thead><tbody>${tasksHtml}</tbody></table></div>`; let transactionsHtml = '<tr><td colspan="4" class="text-center p-2">No transactions found.</td></tr>'; if (!transactionsSnap.empty) { transactionsHtml = transactionsSnap.docs.map(tDoc => { const tData = tDoc.data(); return `<tr><td class="p-2 border-b">${formatDate(tData.timestamp)}</td><td class="p-2 border-b capitalize">${(tData.type || '').replace('_', ' ')}</td><td class="p-2 border-b">${formatKsh(tData.amount)}</td><td class="p-2 border-b text-gray-500">${tData.description || ''}</td></tr>`; }).join(''); } const transactionsTable = `<div class="modal-section"><h4 class="font-bold text-lg text-gray-700 mb-2">Transactions</h4><table class="min-w-full bg-white text-sm"><thead class="bg-gray-200"><tr><th class="p-2 text-left">Date</th><th class="p-2 text-left">Type</th><th class="p-2 text-left">Amount</th><th class="p-2 text-left">Description</th></tr></thead><tbody>${transactionsHtml}</tbody></table></div>`; let referralsHtml = '<li class="text-center p-2">No referrals found.</li>'; if (!referralsSnap.empty) { referralsHtml = referralsSnap.docs.map(rDoc => `<li class="p-2 border-b">${rDoc.data().username}</li>`).join(''); } const referralsList = `<div class="modal-section"><h4 class="font-bold text-lg text-gray-700 mb-2">Referral Team</h4><ul class="bg-white rounded-md">${referralsHtml}</ul></div>`; DOMElements.reportContent.innerHTML = generalInfoHtml + tasksTable + transactionsTable + referralsList; };
+            DOMElements.sendNotificationBtn.addEventListener('click', () => sendNotification(DOMElements.notificationTitle.value, DOMElements.notificationMessage.value, DOMElements.notificationUserInput.value || null));
             DOMElements.sendWelcomeBtn.addEventListener('click', () => sendNotification('Welcome to MERIDA!', 'We are thrilled to have you on board. Complete your first task to start earning!', DOMElements.notificationUserInput.value.trim() || null));
             DOMElements.sendReminderBtn.addEventListener('click', () => sendNotification('Withdrawal Rule Reminder', 'To ensure smooth withdrawals, please remember that you need at least two active referrals. Keep growing your team!', DOMElements.notificationUserInput.value.trim() || null));
         });
