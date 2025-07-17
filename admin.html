@@ -23,7 +23,6 @@
 </head>
 <body class="bg-gray-100">
 
-    <!-- Admin Login Section -->
     <div id="admin-login-container" class="min-h-screen flex items-center justify-center bg-gray-200 p-4">
         <div class="w-full max-w-sm bg-white rounded-2xl shadow-xl p-8">
             <h1 class="text-3xl font-bold text-center text-blue-500 mb-6">MERIDA Admin Login</h1>
@@ -36,10 +35,8 @@
         </div>
     </div>
 
-    <!-- Admin Panel -->
     <div id="admin-panel-container" class="hidden">
         <div class="flex h-screen bg-gray-800 text-white">
-            <!-- Sidebar -->
             <nav class="w-64 flex-shrink-0 bg-slate-900 p-4 flex flex-col justify-between">
                 <div>
                     <h2 class="text-2xl font-bold text-center text-blue-500 mb-8 border-b border-gray-700 pb-4">MERIDA ADMIN</h2>
@@ -54,7 +51,6 @@
                 <button id="admin-logout-btn" class="sidebar-link w-full text-red-400 hover:bg-red-800/50"><i class="fas fa-fw fa-sign-out-alt"></i>Logout</button>
             </nav>
 
-            <!-- Main Content -->
             <main class="flex-1 p-6 md:p-10 bg-gray-100 overflow-y-auto">
                 <header class="mb-8"><h1 id="page-title" class="text-4xl font-bold text-gray-800">Overview</h1></header>
                 
@@ -90,7 +86,6 @@
         </div>
     </div>
     
-    <!-- Manage User Details Modal -->
     <div id="user-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-40 p-4">
         <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg text-gray-800">
             <h3 class="font-bold text-xl mb-4" id="modal-username">Manage User Details</h3>
@@ -100,7 +95,6 @@
                     <select id="modal-level-select" class="mt-1 block w-full px-3 py-2 bg-slate-50 border rounded-md styled-input"></select>
                 </div>
             </div>
-            <!-- Sponsor Bonus Section -->
             <div id="sponsor-bonus-section" class="hidden modal-section">
                 <h4 class="font-bold text-lg">Sponsor Bonus</h4>
                 <p class="text-sm text-gray-600">Sponsor: <span id="sponsor-name" class="font-semibold">N/A</span></p>
@@ -117,7 +111,6 @@
         </div>
     </div>
     
-    <!-- Manage Assets Modal -->
     <div id="asset-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-40 p-4">
         <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg text-gray-800">
             <h3 class="font-bold text-xl mb-4" id="asset-modal-username">Manage Assets</h3>
@@ -130,7 +123,6 @@
         </div>
     </div>
     
-    <!-- User Report Modal -->
     <div id="report-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
         <div class="bg-gray-50 rounded-xl shadow-2xl p-6 w-full max-w-4xl text-gray-800 max-h-[95vh] flex flex-col">
             <div class="flex justify-between items-center mb-4 border-b pb-3">
@@ -141,7 +133,6 @@
         </div>
     </div>
 
-    <!-- Message/Notification Toast -->
     <div id="message-modal" class="hidden fixed top-5 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-xl z-50 animate-pulse"><p id="message-modal-text"></p></div>
 
     <script type="module">
@@ -174,6 +165,8 @@
             };
 
             let app, auth, db, selectedUserId = null, selectedUserData = null;
+            // MODIFICATION: Added a cache for all users to improve notification sending
+            let allUsersData = []; 
             try { app = initializeApp(firebaseConfig); auth = getAuth(app); db = getFirestore(app); } catch (e) { console.error("Firebase init failed:", e); }
 
             // --- DOM Elements ---
@@ -223,7 +216,12 @@
                 onSnapshot(collection(db, 'users'), (snapshot) => {
                     DOMElements.statTotalUsers.textContent = snapshot.size;
                     let totalAssets = 0;
-                    snapshot.docs.forEach(doc => { totalAssets += (doc.data().totalAssets || 0); });
+                    // MODIFICATION: Populate the user cache for notifications
+                    allUsersData = snapshot.docs.map(doc => {
+                        const data = doc.data();
+                        totalAssets += (data.totalAssets || 0);
+                        return { id: doc.id, ...data };
+                    });
                     DOMElements.statTotalAssets.textContent = formatKsh(totalAssets);
                     renderUsers(snapshot.docs);
                 });
@@ -245,7 +243,8 @@
                 listElement.innerHTML = docs.map(doc => {
                     const data = doc.data();
                     const details = type === 'deposit' ? `<p class="text-sm text-gray-500">From: ${data.mpesaName} (${data.mpesaPhone})</p>` : '';
-                    return `<div class="bg-gray-50 p-4 rounded-lg shadow-sm flex justify-between items-center"><div><p class="font-semibold text-gray-800">${data.username} - ${formatKsh(data.amount)}</p>${details}<p class="text-xs text-gray-400">${formatDate(data.timestamp)}</p></div><div class="space-x-2 flex-shrink-0"><button class="bg-green-500 text-white py-1 px-3 rounded text-sm approve-btn" data-id="${doc.id}" data-user-id="${data.userId}" data-amount="${data.amount}" data-type="${type}">Approve</button><button class="bg-red-500 text-white py-1 px-3 rounded text-sm reject-btn" data-id="${doc.id}" data-user-id="${data.userId}" data-amount="${data.amount}" data-type="${type}">Reject</button></div></div>`;
+                    // MODIFICATION: Added data-username to buttons for use in action handlers
+                    return `<div class="bg-gray-50 p-4 rounded-lg shadow-sm flex justify-between items-center"><div><p class="font-semibold text-gray-800">${data.username} - ${formatKsh(data.amount)}</p>${details}<p class="text-xs text-gray-400">${formatDate(data.timestamp)}</p></div><div class="space-x-2 flex-shrink-0"><button class="bg-green-500 text-white py-1 px-3 rounded text-sm approve-btn" data-id="${doc.id}" data-user-id="${data.userId}" data-amount="${data.amount}" data-type="${type}" data-username="${data.username}">Approve</button><button class="bg-red-500 text-white py-1 px-3 rounded text-sm reject-btn" data-id="${doc.id}" data-user-id="${data.userId}" data-amount="${data.amount}" data-type="${type}" data-username="${data.username}">Reject</button></div></div>`;
                 }).join('');
                 addRequestEventListeners(listElement);
             };
@@ -262,9 +261,9 @@
             const addRequestEventListeners = (listElement) => {
                 listElement.querySelectorAll('.approve-btn, .reject-btn').forEach(button => {
                     button.onclick = (e) => {
-                        const { id, userId, amount, type } = e.currentTarget.dataset;
+                        const { id, userId, amount, type, username } = e.currentTarget.dataset; // MODIFICATION: Get username from data attribute
                         const status = e.currentTarget.classList.contains('approve-btn') ? 'approved' : 'rejected';
-                        handleRequestAction(id, userId, parseFloat(amount), type, status);
+                        handleRequestAction(id, userId, parseFloat(amount), type, status, username);
                     };
                 });
             };
@@ -297,7 +296,7 @@
             });
 
             // --- Action Handlers ---
-            const handleRequestAction = async (requestId, userId, amount, type, status) => {
+            const handleRequestAction = async (requestId, userId, amount, type, status, username) => { // MODIFICATION: Added username parameter
                 const batch = writeBatch(db);
                 const requestRef = doc(db, `${type}s`, requestId);
                 batch.update(requestRef, { status: status, processedAt: serverTimestamp() });
@@ -306,9 +305,16 @@
 
                 if (status === 'approved') {
                     if (type === 'deposit') {
-                        batch.update(userRef, { totalAssets: increment(amount) });
+                        // MODIFICATION: Removed automatic increment of totalAssets
+                        // batch.update(userRef, { totalAssets: increment(amount) }); 
+                        
+                        // MODIFICATION: Create transaction record with updated description
                         const transRef = doc(collection(db, `users/${userId}/transactions`));
-                        batch.set(transRef, { type: 'deposit', amount, status: 'completed', timestamp: serverTimestamp(), description: 'Deposit approved by admin' });
+                        batch.set(transRef, { type: 'deposit', amount, status: 'approved', timestamp: serverTimestamp(), description: 'Deposit approved. Pending manual credit.' });
+                        
+                        // MODIFICATION: Send notification to user about approval
+                        batch.set(notificationRef, { userId: userId, title: '✅ Deposit Approved', message: `Your deposit of ${formatKsh(amount)} is approved. An admin will credit your account shortly.`, read: false, timestamp: serverTimestamp() });
+
                     } else if (type === 'withdrawal') {
                         batch.update(userRef, { pendingWithdrawalsAmount: increment(-amount) });
                         const transRef = doc(collection(db, `users/${userId}/transactions`));
@@ -320,7 +326,15 @@
                     batch.set(notificationRef, { userId: userId, title: '❌ Withdrawal Rejected', message: `Your withdrawal request for ${formatKsh(amount)} was rejected. The funds have been returned to your account. Please contact support for details.`, read: false, timestamp: serverTimestamp() });
                 }
 
-                try { await batch.commit(); showMessage(`${type} request ${status} successfully!`); } 
+                try { 
+                    await batch.commit(); 
+                    if (type === 'deposit' && status === 'approved') {
+                        // MODIFICATION: Show admin a reminder message
+                        showMessage(`Deposit for ${username} approved. Please credit the account manually via Manage Assets.`);
+                    } else {
+                        showMessage(`${type} request ${status} successfully!`);
+                    }
+                } 
                 catch (error) { showMessage(`Error processing request.`, 'error'); console.error(error); }
             };
 
@@ -379,23 +393,9 @@
                 const sponsorRef = doc(db, 'users', sponsorId);
                 const userRef = doc(db, 'users', selectedUserId);
                 
-                // Give bonus to sponsor
-                batch.update(sponsorRef, {
-                    totalAssets: increment(bonusAmount),
-                    totalReferralBonuses: increment(bonusAmount)
-                });
-                
-                // Add transaction for sponsor
+                batch.update(sponsorRef, { totalAssets: increment(bonusAmount), totalReferralBonuses: increment(bonusAmount) });
                 const sponsorTransRef = doc(collection(db, `users/${sponsorId}/transactions`));
-                batch.set(sponsorTransRef, {
-                    type: 'referral_bonus',
-                    amount: bonusAmount,
-                    status: 'completed',
-                    timestamp: serverTimestamp(),
-                    description: `5% bonus from ${selectedUserData.username}'s investment.`
-                });
-                
-                // Mark bonus as paid for the new user
+                batch.set(sponsorTransRef, { type: 'referral_bonus', amount: bonusAmount, status: 'completed', timestamp: serverTimestamp(), description: `5% bonus from ${selectedUserData.username}'s investment.` });
                 batch.update(userRef, { sponsorBonusPaid: true });
                 
                 try {
@@ -443,9 +443,7 @@
             });
 
             const handleDeleteUser = async (userId) => {
-                // Replaced confirm with a simple check for this example. 
-                // In a real app, use a custom modal for confirmation.
-                if (!prompt("Type 'DELETE' to confirm permanent deletion of this user.")) { return; }
+                if (prompt("Type 'DELETE' to confirm permanent deletion of this user.") !== 'DELETE') { return; }
                 try {
                     await deleteDoc(doc(db, 'users', userId));
                     showMessage('User deleted successfully!');
@@ -461,70 +459,47 @@
                 DOMElements.reportContent.innerHTML = '<p class="text-center">Generating report...</p>';
                 toggleModal(DOMElements.reportModal, true);
 
-                // Fetch all data in parallel
                 const [transactionsSnap, tasksSnap, referralsSnap] = await Promise.all([
                     getDocs(query(collection(db, `users/${userId}/transactions`), orderBy('timestamp', 'desc'))),
                     getDocs(query(collection(db, `users/${userId}/completedTasks`), orderBy('completedAt', 'desc'))),
                     getDocs(query(collection(db, 'users'), where('referredBy', '==', userId)))
                 ]);
 
-                // General Info
-                const generalInfoHtml = `
-                    <div class="modal-section">
-                        <h4 class="font-bold text-lg text-gray-700 mb-2">Account Information</h4>
-                        <div class="grid grid-cols-2 gap-2 text-sm">
-                            <p><span class="font-semibold">Account Activated:</span> ${formatDate(userData.createdAt)}</p>
-                            <p><span class="font-semibold">Current Level:</span> ${INVESTMENT_LEVELS[userData.investmentLevel]?.name || 'N/A'}</p>
-                            <p><span class="font-semibold">Sponsor:</span> ${userData.sponsorUsername || 'None'}</p>
-                        </div>
-                    </div>`;
-
-                // Completed Tasks
+                const generalInfoHtml = `<div class="modal-section"><h4 class="font-bold text-lg text-gray-700 mb-2">Account Information</h4><div class="grid grid-cols-2 gap-2 text-sm"><p><span class="font-semibold">Account Activated:</span> ${formatDate(userData.createdAt)}</p><p><span class="font-semibold">Current Level:</span> ${INVESTMENT_LEVELS[userData.investmentLevel]?.name || 'N/A'}</p><p><span class="font-semibold">Sponsor:</span> ${userData.sponsorUsername || 'None'}</p></div></div>`;
                 let tasksHtml = '<tr><td colspan="2" class="text-center p-2">No tasks completed.</td></tr>';
-                if (!tasksSnap.empty) {
-                    tasksHtml = tasksSnap.docs.map(tDoc => {
-                        const tData = tDoc.data();
-                        return `<tr><td class="p-2 border-b">${tData.taskName || 'Unnamed Task'}</td><td class="p-2 border-b">${formatDate(tData.completedAt)}</td></tr>`;
-                    }).join('');
-                }
+                if (!tasksSnap.empty) { tasksHtml = tasksSnap.docs.map(tDoc => { const tData = tDoc.data(); return `<tr><td class="p-2 border-b">${tData.taskName || 'Unnamed Task'}</td><td class="p-2 border-b">${formatDate(tData.completedAt)}</td></tr>`; }).join(''); }
                 const tasksTable = `<div class="modal-section"><h4 class="font-bold text-lg text-gray-700 mb-2">Completed Tasks</h4><table class="min-w-full bg-white text-sm"><thead class="bg-gray-200"><tr><th class="p-2 text-left">Task</th><th class="p-2 text-left">Completed At</th></tr></thead><tbody>${tasksHtml}</tbody></table></div>`;
-
-                // Transactions
                 let transactionsHtml = '<tr><td colspan="4" class="text-center p-2">No transactions found.</td></tr>';
-                if (!transactionsSnap.empty) {
-                    transactionsHtml = transactionsSnap.docs.map(tDoc => {
-                        const tData = tDoc.data();
-                        return `<tr><td class="p-2 border-b">${formatDate(tData.timestamp)}</td><td class="p-2 border-b capitalize">${(tData.type || '').replace('_', ' ')}</td><td class="p-2 border-b">${formatKsh(tData.amount)}</td><td class="p-2 border-b text-gray-500">${tData.description || ''}</td></tr>`;
-                    }).join('');
-                }
+                if (!transactionsSnap.empty) { transactionsHtml = transactionsSnap.docs.map(tDoc => { const tData = tDoc.data(); return `<tr><td class="p-2 border-b">${formatDate(tData.timestamp)}</td><td class="p-2 border-b capitalize">${(tData.type || '').replace('_', ' ')}</td><td class="p-2 border-b">${formatKsh(tData.amount)}</td><td class="p-2 border-b text-gray-500">${tData.description || ''}</td></tr>`; }).join(''); }
                 const transactionsTable = `<div class="modal-section"><h4 class="font-bold text-lg text-gray-700 mb-2">Transactions</h4><table class="min-w-full bg-white text-sm"><thead class="bg-gray-200"><tr><th class="p-2 text-left">Date</th><th class="p-2 text-left">Type</th><th class="p-2 text-left">Amount</th><th class="p-2 text-left">Description</th></tr></thead><tbody>${transactionsHtml}</tbody></table></div>`;
-
-                // Referral Team
                 let referralsHtml = '<li class="text-center p-2">No referrals found.</li>';
-                if (!referralsSnap.empty) {
-                    referralsHtml = referralsSnap.docs.map(rDoc => `<li class="p-2 border-b">${rDoc.data().username}</li>`).join('');
-                }
+                if (!referralsSnap.empty) { referralsHtml = referralsSnap.docs.map(rDoc => `<li class="p-2 border-b">${rDoc.data().username}</li>`).join(''); }
                 const referralsList = `<div class="modal-section"><h4 class="font-bold text-lg text-gray-700 mb-2">Referral Team</h4><ul class="bg-white rounded-md">${referralsHtml}</ul></div>`;
-                
                 DOMElements.reportContent.innerHTML = generalInfoHtml + tasksTable + transactionsTable + referralsList;
             };
             
-            const sendNotification = async (title, message, targetUser = null) => {
-                 if (!title || !message) { showMessage('Title and Message cannot be empty.', 'error'); return; }
+            // MODIFICATION: Rewritten function for robust, case-insensitive user searching
+            const sendNotification = async (title, message, targetUsername = null) => {
+                if (!title || !message) { showMessage('Title and Message cannot be empty.', 'error'); return; }
                 try {
                     const batch = writeBatch(db);
-                    if (targetUser) {
-                        const q = query(collection(db, 'users'), where('username', '==', targetUser));
-                        const userSnap = await getDocs(q);
-                        if (userSnap.empty) { showMessage(`User "${targetUser}" not found.`, 'error'); return; }
-                        const userId = userSnap.docs[0].id;
+                    if (targetUsername) {
+                        const targetUsernameLower = targetUsername.toLowerCase();
+                        // Search the cached user data
+                        const user = allUsersData.find(u => u.username && u.username.toLowerCase() === targetUsernameLower);
+
+                        if (!user) {
+                            showMessage(`User "${targetUsername}" not found. Please check the username.`, 'error');
+                            return;
+                        }
+                        // If user is found, create a notification for them
                         const notificationRef = doc(collection(db, 'notifications'));
-                        batch.set(notificationRef, { userId, title, message, read: false, timestamp: serverTimestamp() });
+                        batch.set(notificationRef, { userId: user.id, title, message, read: false, timestamp: serverTimestamp() });
                     } else {
-                        const usersSnap = await getDocs(collection(db, 'users'));
-                        usersSnap.forEach(userDoc => {
+                        // Send to all users by iterating through the cached data
+                        allUsersData.forEach(user => {
                             const notificationRef = doc(collection(db, 'notifications'));
-                            batch.set(notificationRef, { userId: userDoc.id, title, message, read: false, timestamp: serverTimestamp() });
+                            batch.set(notificationRef, { userId: user.id, title, message, read: false, timestamp: serverTimestamp() });
                         });
                     }
                     await batch.commit();
